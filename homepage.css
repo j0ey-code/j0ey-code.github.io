@@ -1,0 +1,150 @@
+/*
+ * homepage.css
+ * Styles specific to the homepage
+ * Requires: site.css loaded first
+ */
+
+/* ===========================
+   HERO / INTRO SECTION
+   =========================== */
+
+.hero {
+    margin-bottom: 3.5rem;
+}
+
+.hero-name {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.8rem;
+}
+
+.hero-tagline {
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+    font-weight: 300;
+    max-width: 625px;
+    line-height: 1.7;
+}
+
+/* ===========================
+   SECTION HEADINGS
+   =========================== */
+
+.section-heading {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.02em;
+}
+
+.section-heading::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 2px;
+    background: var(--color-accent);
+    margin-top: 0.5rem;
+}
+
+/* ===========================
+   PREVIEW CARDS
+   =========================== */
+
+.preview-section {
+    margin-bottom: 3rem;
+}
+
+.preview-card {
+    display: block;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    color: var(--color-text);
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+.preview-card:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-accent);
+}
+
+@media (hover: hover) {
+    .preview-card:hover {
+        transform: translateY(-2px);
+    }
+}
+
+.preview-card-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+}
+
+.preview-card-meta {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.6rem;
+}
+
+.preview-card-excerpt {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    font-weight: 300;
+    line-height: 1.6;
+}
+
+.preview-more {
+    display: inline-block;
+    margin-top: 0.8rem;
+    font-size: 0.85rem;
+    color: var(--color-accent);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 400;
+    transition: color 0.25s ease;
+}
+
+.preview-more:hover {
+    color: var(--color-accent-hover);
+}
+
+/* ===========================
+   RESPONSIVE: SMALL SCREENS
+   =========================== */
+
+@media (max-width: 768px) {
+    .hero-name {
+        font-size: 1.8rem;
+    }
+
+    .hero-tagline {
+        font-size: 1rem;
+    }
+
+    .section-heading {
+        font-size: 1.2rem;
+    }
+
+    .preview-card {
+        padding: 1.1rem 1.2rem;
+    }
+}
+
+/* ===========================
+   ACCESSIBILITY: REDUCED MOTION
+   =========================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .preview-card {
+        transition: none;
+    }
+}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Projects — j0ey-code</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="site.css">
+    <link rel="stylesheet" href="projects.css">
+</head>
+<body>
+
+    <!-- Landing page return button (desktop only) -->
+    <div class="return-bar">
+        <a href="index.html" class="return-link">&larr; Landing</a>
+    </div>
+
+    <!-- Site header and navigation -->
+    <header class="site-header">
+        <nav class="site-nav">
+            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+
+            <div class="nav-links">
+                <a href="homepage.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html" class="active">Projects</a>
+                <a href="blog.html">Blog</a>
+                <a href="contact.html">Contact</a>
+                <a href="index.html" class="mobile-return">&larr; Back to Landing</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main page content -->
+    <main class="page-content">
+
+        <h1 class="page-title">Projects</h1>
+        <p class="page-intro">
+            A collection of things I've coded and built, from single page web 
+            applications, to executable desktop programs and command-line utilities.  
+        </p>
+
+        <div class="project-grid">
+
+            <!-- Project 1 -->
+            <div class="project-card">
+                <div class="project-name">12-Tone Chromatic Tuner (@ 440 Hz)</div>
+                <div class="project-meta">JavaScript &middot; HTML / CSS &middot; 2025-2026</div>
+                <p class="project-desc">
+                    Chromatic 12-tone, simple, vanilla web-stack application that functions as 
+                    a musical instrument tuner and pitch estimation tool, utilizing the YIN pitch 
+                    detection algorithm and a low-pass filter to capture the bass(iest) 
+                    note, using that as the determinant tone for the audio pipeline. 
+                    Operates @ 440 Hz frequency range, i.e. the international tuning standard.
+                </p>
+                <div class="project-links">
+                    <a href="tunerV2-index.html" target="_blank">Demo</a>
+                    <a href="https://github.com/j0ey-code/yin-webapp-tuner">GitHub</a>
+                    <a href="assets/docs/yinPaper.pdf">Docs</a>
+                </div>
+            </div>
+
+            <!-- Project 2 -->
+            <div class="project-card">
+                <div class="project-name">20 Questions Console Game</div>
+                <div class="project-meta">Java &middot; Software Design &middot; OOP &middot; 2024</div>
+                <p class="project-desc">
+                    A twenty questions game program written in the core Java 21(+) JDK that runs a text-based menu interface
+                    through the console / terminal. Utilizes various data structures and OOP software design principles
+                    to handle serialization, game logic, and enforce the program's "self-learning" mechanism. 
+                </p>
+                <div class="project-links">
+                    <a href="https://github.com/j0ey-code/twenty-questions-java/tree/main/out/artifacts" target="_blank">Demo</a>
+                    <a href="https://github.com/j0ey-code/twenty-questions-java">GitHub</a>
+                    <a href="https://github.com/j0ey-code/twenty-questions-java/blob/main/README.md">Docs</a>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="https://github.com/j0ey-code">GitHub</a>
+            <a href="https://www.linkedin.com/in/joseph-lincoln-79055b3b4/">LinkedIn</a>
+            <a href="mailto:alias.glacier901@passmail.net">Email</a>
+        </div>
+        <span class="footer-copy">&copy; 2026 j0ey-code — All Rights Reserved</span>
+    </footer>
+
+    <script src="assets/scripts/site.js"></script>
+</body>
+</html>

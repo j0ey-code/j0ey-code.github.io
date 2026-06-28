@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Home — j0ey-code</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="site.css">
+    <link rel="stylesheet" href="homepage.css">
+</head>
+<body>
+
+    <!-- Landing page return button (visible on desktop only) -->
+    <div class="return-bar">
+        <a href="index.html" class="return-link">&larr; Landing</a>
+    </div>
+
+    <!-- Site header and navigation -->
+    <header class="site-header">
+        <nav class="site-nav">
+
+            <!-- Hamburger toggle (visible on mobile only) -->
+            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+
+            <!-- Nav links (inline on desktop, collapsible panel on mobile) -->
+            <div class="nav-links">
+                <a href="homepage.html" class="active">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html">Projects</a>
+                <a href="blog.html">Blog</a>
+                <a href="contact.html">Contact</a>
+                <a href="index.html" class="mobile-return">&larr; Back to Landing</a>
+            </div>
+
+        </nav>
+    </header>
+
+    <!-- Main page content -->
+    <main class="page-content">
+
+        <!-- Hero / Intro -->
+        <section class="hero">
+            <h1 class="hero-name">j0ey-code</h1>
+            <p class="hero-tagline">
+                Programmer, poweruser, developer, writer, musician, New Englander. <br>
+                A.S. in Computer-Information Science from Northern Essex Community College. <br>
+                Currently continuing my B.S. in Computer Science at Illinois State University. <br>  
+                Looking for new opportunities to learn, grow, and develop professionally. 
+            </p>
+        </section>
+
+        <!-- Latest Blog Posts Preview -->
+        <section class="preview-section">
+            <h2 class="section-heading">From the Blog</h2>
+
+            <a href="assets/docs/yinPaper.pdf" target="_blank" class="preview-card">
+                <div class="preview-card-title">YIN Algorithm Research Paper</div>
+                <div class="preview-card-meta">May 2026</div>
+                <p class="preview-card-excerpt">
+                    My research paper on the YIN algorithm, created by Cheveigne and 
+                    Kawahara in 2002, exploring its improvements upon previous 
+                    auto-correlation methods for pitch estimation, along with its 
+                    significance in the world of digital signal processing methods.
+                </p>
+            </a>
+
+            <a href="assets/docs/tcp-ip_paper.pdf" target="_blank" class="preview-card">
+                <div class="preview-card-title">TCP/IP Technical Report</div>
+                <div class="preview-card-meta">March 2026</div>
+                <p class="preview-card-excerpt">
+                    A technical report on how both the TCP/IP and 
+                    OSI networking models function in practice.
+                </p>
+            </a>
+
+            <a href="blog.html" class="preview-more">View All Posts &rarr;</a>
+        </section>
+
+        <!-- Featured Project Preview -->
+        <section class="preview-section">
+            <h2 class="section-heading">Featured Projects</h2>
+
+            <a href="https://github.com/j0ey-code/yin-webapp-tuner" target="_blank" class="preview-card">
+                <div class="preview-card-title">12-Tone Chromatic Tuner (@ 440 Hz)</div>
+                <div class="preview-card-meta">JavaScript &middot; HTML / CSS &middot; 2025-2026</div>
+                <p class="preview-card-excerpt">
+                    Chromatic 12-tone, simple, vanilla web-stack application that functions as 
+                    a musical instrument tuner and pitch estimation tool, utilizing the YIN pitch 
+                    detection algorithm and a low-pass filter to capture the bass(iest) 
+                    note, using that as the determinant tone for the audio pipeline. 
+                    Operates @ 440 Hz frequency range, i.e. the international tuning standard.
+                </p>
+            </a>
+
+            <a href="https://github.com/j0ey-code/twenty-questions-java" target="_blank" class="preview-card">
+                <div class="preview-card-title">20 Questions Console Game</div>
+                <div class="preview-card-meta">Java &middot; Software Design &middot; OOP &middot; 2024</div>
+                <p class="preview-card-excerpt">
+                    A twenty questions game program written in the core Java 21(+) JDK that runs a text-based menu interface
+                    through the console / terminal. Utilizes various data structures and OOP software design principles
+                    to handle serialization, game logic, and enforce the program's "self-learning" mechanism. 
+                </p>
+            </a>
+
+            <a href="projects.html" class="preview-more">See All Projects &rarr;</a>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="https://github.com/j0ey-code">GitHub</a>
+            <a href="https://www.linkedin.com/in/joseph-lincoln-79055b3b4/">LinkedIn</a>
+            <a href="mailto:alias.glacier901@passmail.net">Email</a>
+        </div>
+        <span class="footer-copy">&copy; 2026 j0ey-code — All Rights Reserved</span>
+    </footer>
+
+    <script src="assets/scripts/site.js"></script>
+</body>
+</html>

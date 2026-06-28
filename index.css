@@ -1,0 +1,210 @@
+/*
+ * landing.css
+ * Styles for the landing / entry page
+ */
+
+/* ===========================
+   RESET & BASE
+   =========================== */
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+    overflow-wrap: break-word;
+}
+
+/* ===========================
+   CSS VARIABLES
+   =========================== */
+
+:root {
+    --color-bg: #0a0a0a;
+    --color-bg-mid: #22090c;
+    --color-bg-warm: #2b0f1a;
+    --color-text: #e8ddd3;
+    --color-accent: #944754e5;
+    --color-accent-hover: #c94e72;
+    --color-subtitle: #e9e5e5;
+    --font-display: 'Rockwell', 'Cambria', Georgia, serif;
+    --font-body: 'Outfit', 'Century Gothic', 'Futura', sans-serif;
+    --font-size-title: 2.8rem;
+    --font-size-subtitle: 1.05rem;
+    --icon-size: 120px;
+}
+
+/* ===========================
+   FLEX GRADIENT BACKGROUND
+   =========================== */
+
+.landing {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 100vh fallback for older browsers, 100dvh for modern (fixes iOS Safari) */
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    background: linear-gradient(
+        135deg,
+        var(--color-bg) 0%,
+        var(--color-bg-mid) 45%,
+        var(--color-bg-warm) 100%
+    );
+
+    color: var(--color-text);
+    font-family: var(--font-body);
+}
+
+/* ===========================
+   CONTENT WRAPPER
+   =========================== */
+
+.landing-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+    padding: 2rem;
+
+    animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===========================
+   FONTS AND TEXT
+   =========================== */
+
+.landing-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-title);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+}
+
+.landing-subtitle {
+    font-size: var(--font-size-subtitle);
+    color: var(--color-subtitle);
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+/* ===========================
+   ICON
+   =========================== */
+
+.landing-icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--color-accent);
+
+    background: linear-gradient(
+        160deg,
+        var(--color-accent) 0%,
+        var(--color-bg-mid) 100%
+    );
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.landing-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.landing-icon svg {
+    width: 50%;
+    height: 50%;
+    stroke: var(--color-text);
+    opacity: 0.6;
+}
+
+/* ===========================
+   ENTRY LINK / BUTTON
+   =========================== */
+
+.landing-enter {
+    display: inline-block;
+    padding: 0.75rem 2.5rem;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: 4px;
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.landing-enter:hover {
+    background: var(--color-accent);
+    color: var(--color-text);
+}
+
+@media (hover: hover) {
+    .landing-enter:hover {
+        box-shadow: 0 0 20px #eee7e7;
+    }
+}
+
+/* ===========================
+   DYNAMIC SCREEN SIZING
+   =========================== */
+
+@media (max-width: 768px) {
+    :root {
+        --font-size-title: 1.9rem;
+        --font-size-subtitle: 0.9rem;
+        --icon-size: 90px;
+    }
+
+    .landing-content {
+        gap: 1.2rem;
+    }
+
+    .landing-enter {
+        padding: 0.65rem 2rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* ===========================
+   ACCESSIBILITY: REDUCED MOTION
+   =========================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .landing-content {
+        animation: none;
+    }
+}
