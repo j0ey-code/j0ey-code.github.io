@@ -11,37 +11,32 @@
 .post-list {
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 1.2rem;
 }
 
+/* Each post is its own card, matching the project and preview cards.
+   The solid surface also keeps the background light streak from
+   washing across the post text. */
 .post-entry {
     display: block;
     text-decoration: none;
     color: var(--color-text);
-    padding: 1.6rem 0;
-    border-bottom: 1px solid var(--color-border);
-    transition: background 0.3s ease;
-}
-
-.post-entry:first-child {
-    padding-top: 28px;
-}
-
-.post-entry:last-child {
-    border-bottom: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 1.5rem;
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
 }
 
 .post-entry:hover {
-    background: var(--color-surface);
+    background: var(--color-surface-hover);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 18px var(--color-glow);
 }
 
 @media (hover: hover) {
     .post-entry:hover {
-        padding-left: 1.2rem;
-        padding-right: 1.2rem;
-        margin-left: -1.2rem;
-        margin-right: -1.2rem;
-        border-radius: 6px;
+        transform: translateY(-2px);
     }
 }
 
@@ -92,6 +87,10 @@
    =========================== */
 
 @media (max-width: 768px) {
+    .post-entry {
+        padding: 1.1rem 1.2rem;
+    }
+
     .post-title {
         font-size: 1.1rem;
     }

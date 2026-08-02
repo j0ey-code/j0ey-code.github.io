@@ -30,13 +30,15 @@ body {
    =========================== */
 
 :root {
-    --color-bg: #0a0a0a;
-    --color-bg-mid: #22090c;
-    --color-bg-warm: #2b0f1a;
-    --color-text: #e8ddd3;
-    --color-accent: #944754e5;
-    --color-accent-hover: #c94e72;
-    --color-subtitle: #e9e5e5;
+    /* Black / hot-pink theme — keep in step with site.css */
+    --color-bg: #000000;
+    --color-bg-mid: #08040a;
+    --color-bg-warm: #150610;
+    --color-text: #f4ebf1;
+    --color-accent: #ff4da6;
+    --color-accent-hover: #ff8fc6;
+    --color-glow: rgba(255, 77, 166, 0.35);
+    --color-subtitle: #e9dfe6;
     --font-display: 'Rockwell', 'Cambria', Georgia, serif;
     --font-body: 'Outfit', 'Century Gothic', 'Futura', sans-serif;
     --font-size-title: 2.8rem;
@@ -45,7 +47,9 @@ body {
 }
 
 /* ===========================
-   FLEX GRADIENT BACKGROUND
+   FLEX LAYOUT
+   Background is left transparent so the shared body gradient
+   and the light streak from site.css show through.
    =========================== */
 
 .landing {
@@ -56,12 +60,7 @@ body {
     min-height: 100vh;
     min-height: 100dvh;
 
-    background: linear-gradient(
-        135deg,
-        var(--color-bg) 0%,
-        var(--color-bg-mid) 45%,
-        var(--color-bg-warm) 100%
-    );
+    background: transparent;
 
     color: var(--color-text);
     font-family: var(--font-body);
@@ -123,6 +122,7 @@ body {
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid var(--color-accent);
+    box-shadow: 0 0 24px var(--color-glow);
 
     background: linear-gradient(
         160deg,
@@ -169,12 +169,12 @@ body {
 
 .landing-enter:hover {
     background: var(--color-accent);
-    color: var(--color-text);
+    color: #12000a;
 }
 
 @media (hover: hover) {
     .landing-enter:hover {
-        box-shadow: 0 0 20px #eee7e7;
+        box-shadow: 0 0 20px var(--color-glow), 0 0 44px var(--color-glow);
     }
 }
 

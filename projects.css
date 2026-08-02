@@ -27,6 +27,7 @@
 .project-card:hover {
     background: var(--color-surface-hover);
     border-color: var(--color-accent);
+    box-shadow: 0 0 18px var(--color-glow);
 }
 
 @media (hover: hover) {

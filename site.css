@@ -33,18 +33,24 @@ body {
    =========================== */
 
 :root {
-    --color-bg: #0a0a0a;
-    --color-bg-mid: #22090c;
-    --color-bg-warm: #2b0f1a;
-    --color-text: #e8ddd3;
-    --color-text-muted: #8d8282;
-    --color-accent: #944754e5;
-    --color-accent-hover: #c94e72;
-    --color-surface: rgba(255, 255, 255, 0.04);
-    --color-surface-hover: rgba(255, 255, 255, 0.07);
-    --color-border: rgba(163, 59, 92, 0.2);
+    /* Black / hot-pink theme: near-black field, single pink light streak */
+    --color-bg: #000000;
+    --color-bg-mid: #08040a;
+    --color-bg-warm: #150610;
+    --color-text: #f4ebf1;
+    --color-text-muted: #a89aa3;
+    --color-accent: #ff4da6;
+    --color-accent-hover: #ff8fc6;
+    --color-surface: rgba(10, 4, 8, 0.92);
+    --color-surface-hover: rgba(28, 10, 20, 0.95);
+    --color-border: rgba(255, 77, 166, 0.22);
+    --color-glow: rgba(255, 77, 166, 0.35);
     --font-display: 'Rockwell', 'Cambria', Georgia, serif;
     --font-body: 'Outfit', 'Century Gothic', 'Futura', sans-serif;
+
+    /* Light streak: sits low in the viewport, drifts on scroll (see site.js) */
+    --streak-pos: 74%;
+    --streak-shift: 0px;
 }
 
 body {
@@ -74,6 +80,111 @@ body {
 }
 
 /* ===========================
+   HORIZONTAL LIGHT STREAK
+   Fixed to the viewport, sits low on the page, and drifts
+   upward as you scroll. site.js updates --streak-shift.
+   =========================== */
+
+/* Bloom: the wide pink haze that bleeds above and below the line */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+
+    background:
+        /* outer haze — kept shallow so the page stays black */
+        radial-gradient(
+            85% 9% at 50% var(--streak-pos),
+            rgba(255, 77, 166, 0.26) 0%,
+            rgba(255, 45, 143, 0.07) 45%,
+            rgba(255, 45, 143, 0) 80%
+        ),
+        /* tight inner core glow */
+        radial-gradient(
+            55% 2.6% at 50% var(--streak-pos),
+            rgba(255, 219, 238, 0.5) 0%,
+            rgba(255, 122, 191, 0.2) 50%,
+            rgba(255, 45, 143, 0) 100%
+        );
+
+    transform: translate3d(0, var(--streak-shift), 0);
+    will-change: transform, opacity;
+
+    /* Slow breathing glow. Opacity only — animating the gradient
+       stops would repaint the whole viewport every frame. */
+    animation: streakBreathe 10s ease-in-out infinite;
+}
+
+@keyframes streakBreathe {
+    0%, 100% { opacity: 0.85; }
+    50%      { opacity: 1; }
+}
+
+/* Core: the crisp hairline running edge to edge */
+body::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: var(--streak-pos);
+    height: 2px;
+    margin-top: -1px;
+    z-index: -1;
+    pointer-events: none;
+
+    /* Two layers: a narrow glint that sweeps across, over the
+       static core. Keeping them separate means the core stays put
+       while only the highlight travels. */
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0) 40%,
+            rgba(255, 235, 246, 0.75) 50%,
+            rgba(255, 255, 255, 0) 60%
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255, 150, 205, 0.7) 0%,
+            rgba(255, 255, 255, 0.92) 50%,
+            rgba(255, 150, 205, 0.7) 100%
+        );
+    background-size: 240% 100%, 100% 100%;
+    background-position: 0% 50%, 0% 50%;
+    background-repeat: no-repeat;
+
+    /* Static envelope: pins the ends transparent and keeps the line
+       brightest mid-screen, whatever the shimmer is doing underneath. */
+    -webkit-mask-image: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(0, 0, 0, 0.45) 18%,
+        #000 50%,
+        rgba(0, 0, 0, 0.45) 82%,
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(0, 0, 0, 0.45) 18%,
+        #000 50%,
+        rgba(0, 0, 0, 0.45) 82%,
+        transparent 100%
+    );
+
+    transform: translate3d(0, var(--streak-shift), 0);
+    will-change: transform;
+
+    animation: streakShimmer 14s ease-in-out infinite;
+}
+
+@keyframes streakShimmer {
+    0%, 100% { background-position: 0% 50%, 0% 50%; }
+    50%      { background-position: 100% 50%, 0% 50%; }
+}
+
+/* ===========================
    LANDING PAGE RETURN BUTTON
    =========================== */
 
@@ -98,8 +209,8 @@ body {
 
 .return-link:hover {
     background: var(--color-accent);
-    color: var(--color-text);
-    box-shadow: 0 0 14px rgba(163, 59, 92, 0.3);
+    color: #12000a;
+    box-shadow: 0 0 14px var(--color-glow);
 }
 
 /* ===========================
@@ -236,6 +347,7 @@ body {
     width: 50px;
     height: 2px;
     background: var(--color-accent);
+    box-shadow: 0 0 10px var(--color-glow);
     margin-top: 0.6rem;
 }
 
@@ -354,7 +466,7 @@ body {
         display: flex;
         align-items: center;
         font-size: 0.95rem;
-        border-bottom: 1px solid rgba(163, 59, 92, 0.08);
+        border-bottom: 1px solid rgba(255, 77, 166, 0.1);
     }
 
     .site-nav a:last-child {
@@ -428,7 +540,7 @@ body {
 
 @media (hover: hover) {
     .return-link:hover {
-        box-shadow: 0 0 14px rgba(163, 59, 92, 0.3);
+        box-shadow: 0 0 14px var(--color-glow);
     }
 }
 
@@ -442,6 +554,14 @@ body {
     }
 
     .page-content {
+        animation: none;
+    }
+
+    /* Streak stays put and stops breathing/shimmering.
+       site.js also skips the scroll listener here. */
+    body::before,
+    body::after {
+        transform: none;
         animation: none;
     }
 }

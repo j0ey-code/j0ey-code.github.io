@@ -46,6 +46,7 @@
     width: 40px;
     height: 2px;
     background: var(--color-accent);
+    box-shadow: 0 0 10px var(--color-glow);
     margin-top: 0.5rem;
 }
 
@@ -72,6 +73,7 @@
 .preview-card:hover {
     background: var(--color-surface-hover);
     border-color: var(--color-accent);
+    box-shadow: 0 0 18px var(--color-glow);
 }
 
 @media (hover: hover) {
