@@ -175,7 +175,7 @@
 
                     <figure class="code-block">
                         <span class="code-label">PowerShell</span>
-                        <pre><code>winget install --id MSYS2.MSYS2 -e</code></pre>
+<pre><code>winget install --id MSYS2.MSYS2 -e</code></pre>
                     </figure>
 
                     <p>
@@ -208,7 +208,7 @@
 
                     <figure class="code-block">
                         <span class="code-label">MSYS2 UCRT64</span>
-                        <pre><code>pacman -Syu</code></pre>
+<pre><code>pacman -Syu</code></pre>
                     </figure>
 
                     <p>
@@ -220,7 +220,7 @@
 
                     <figure class="code-block">
                         <span class="code-label">MSYS2 UCRT64</span>
-                        <pre><code>pacman -Su</code></pre>
+<pre><code>pacman -Su</code></pre>
                     </figure>
 
                     <p>Repeat until pacman reports that there is nothing further to do.</p>
@@ -237,7 +237,7 @@
 
                     <figure class="code-block">
                         <span class="code-label">MSYS2 UCRT64</span>
-                        <pre><code>pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain</code></pre>
+<pre><code>pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain</code></pre>
                     </figure>
 
                     <p>
@@ -252,8 +252,8 @@
 
                     <figure class="code-block">
                         <span class="code-label">MSYS2 UCRT64</span>
-                        <pre><code>pacman -S --needed mingw-w64-ucrt-x86_64-cmake \
-                        mingw-w64-ucrt-x86_64-ninja</code></pre>
+<pre><code>pacman -S --needed mingw-w64-ucrt-x86_64-cmake \
+mingw-w64-ucrt-x86_64-ninja</code></pre>
                     </figure>
 
                     <p>
@@ -274,7 +274,7 @@
                     </p>
 
                     <figure class="code-block">
-                        <pre><code>C:\msys64\ucrt64\bin</code></pre>
+<pre><code>C:\msys64\ucrt64\bin</code></pre>
                     </figure>
 
                     <p>To add it:</p>
@@ -309,18 +309,18 @@
 
                     <figure class="code-block">
                         <span class="code-label">PowerShell</span>
-                            <pre><code>gcc --version
-                                g++ --version
-                                gdb --version
-                                mingw32-make --version</code></pre>
+<pre><code>gcc --version
+g++ --version
+gdb --version
+mingw32-make --version</code></pre>
                     </figure>
 
                     <p>Each should print a version banner. Then confirm Windows is resolving the binary you expect:</p>
 
                     <figure class="code-block">
                         <span class="code-label">PowerShell</span>
-                            <pre><code>where.exe g++
-                            <span class="c"># C:\msys64\ucrt64\bin\g++.exe</span></code></pre>
+<pre><code>where.exe g++
+<span class="c"># C:\msys64\ucrt64\bin\g++.exe</span></code></pre>
                     </figure>
 
                     <p>
@@ -338,38 +338,38 @@
 
                     <figure class="code-block">
                         <span class="code-label">hello.cpp</span>
-                        <pre><code>#include &lt;iostream&gt;
+<pre><code>#include &lt;iostream&gt;
 
-                        int main() {
-                        std::cout &lt;&lt; "Hello from g++ on Windows 11\n";
-                        return 0;
-                        }</code></pre>
+int main() {
+    std::cout &lt;&lt; "Hello from g++ on Windows 11\n";
+    return 0;
+}</code></pre>
                     </figure>
 
                     <p>Compile and run it:</p>
 
                     <figure class="code-block">
                         <span class="code-label">PowerShell</span>
-                        <pre><code>g++ -std=c++17 -Wall -Wextra -Wpedantic -o hello.exe hello.cpp
-                        .\hello.exe</code></pre>
+<pre><code>g++ -std=c++17 -Wall -Wextra -Wpedantic -o hello.exe hello.cpp
+.\hello.exe</code></pre>
                     </figure>
 
                     <p>The C side is the same idea. In <code>hello.c</code>:</p>
 
                     <figure class="code-block">
                         <span class="code-label">hello.c</span>
-                        <pre><code>#include &lt;stdio.h&gt;
+<pre><code>#include &lt;stdio.h&gt;
 
-                        int main(void) {
-                        printf("Hello from gcc on Windows 11\n");
-                        return 0;
-                        }</code></pre>
+int main(void) {
+    printf("Hello from gcc on Windows 11\n");
+    return 0;
+}</code></pre>
                     </figure>
 
                     <figure class="code-block">
                         <span class="code-label">PowerShell</span>
-                        <pre><code>gcc -std=c17 -Wall -Wextra -o hello.exe hello.c
-                        .\hello.exe</code></pre>
+<pre><code>gcc -std=c17 -Wall -Wextra -o hello.exe hello.c
+.\hello.exe</code></pre>
                     </figure>
 
                     <h3 class="post-subheading">Flags worth knowing from day one</h3>
@@ -392,7 +392,7 @@
 
                     <figure class="code-block">
                         <span class="code-label">PowerShell</span>
-                        <pre><code>g++ -std=c++17 -O2 -static-libgcc -static-libstdc++ -o hello.exe hello.cpp</code></pre>
+<pre><code>g++ -std=c++17 -O2 -static-libgcc -static-libstdc++ -o hello.exe hello.cpp</code></pre>
                     </figure>
                 </section>
 
@@ -409,27 +409,27 @@
 
                     <figure class="code-block">
                         <span class="code-label">.vscode/tasks.json</span>
-                        <pre><code>{
-                            "version": "2.0.0",
-                            "tasks": [
-                                {
-                                    "label": "build active file (g++)",
-                                    "type": "shell",
-                                    "command": "C:/msys64/ucrt64/bin/g++.exe",
-                                    "args": [
-                                        "-std=c++17",
-                                        "-Wall",
-                                        "-Wextra",
-                                        "-g",
-                                        "${file}",
-                                        "-o",
-                                        "${fileDirname}/${fileBasenameNoExtension}.exe"
-                                    ],
-                                    "group": { "kind": "build", "isDefault": true },
-                                    "problemMatcher": ["$gcc"]
-                                }
-                            ]
-                        }</code></pre>
+<pre><code>{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build active file (g++)",
+            "type": "shell",
+            "command": "C:/msys64/ucrt64/bin/g++.exe",
+            "args": [
+                "-std=c++17",
+                "-Wall",
+                "-Wextra",
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}.exe"
+            ],
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": ["$gcc"]
+        }
+    ]
+}</code></pre>
                     </figure>
 
                     <p>
@@ -465,8 +465,8 @@
 
                     <figure class="code-block">
                         <span class="code-label">Developer PowerShell for VS</span>
-                            <pre><code>cl /EHsc /std:c++17 /W4 hello.cpp
-                            .\hello.exe</code></pre>
+<pre><code>cl /EHsc /std:c++17 /W4 hello.cpp
+.\hello.exe</code></pre>
                     </figure>
 
                     <p>
@@ -489,15 +489,15 @@
 
                     <figure class="code-block">
                         <span class="code-label">PowerShell (Administrator)</span>
-                            <pre><code>wsl --install</code></pre>
+<pre><code>wsl --install</code></pre>
                     </figure>
 
                     <p>Reboot, let Ubuntu finish first-run setup, then inside the Ubuntu shell:</p>
 
                     <figure class="code-block">
                         <span class="code-label">Ubuntu (WSL)</span>
-                            <pre><code>sudo apt update
-                            sudo apt install build-essential gdb</code></pre>
+<pre><code>sudo apt update
+sudo apt install build-essential gdb</code></pre>
                     </figure>
 
                     <p>
@@ -529,7 +529,7 @@
 
                     <figure class="code-block">
                         <span class="code-label">PowerShell</span>
-                            <pre><code>$env:Path -split ';' | Select-String msys64</code></pre>
+<pre><code>$env:Path -split ';' | Select-String msys64</code></pre>
                     </figure>
 
                     <h3 class="post-subheading">The wrong compiler runs</h3>
@@ -549,8 +549,8 @@
 
                     <figure class="code-block">
                         <span class="code-label">MSYS2 UCRT64</span>
-                            <pre><code>pacman -Sy msys2-keyring
-                            pacman -Syu</code></pre>
+<pre><code>pacman -Sy msys2-keyring
+pacman -Syu</code></pre>
                     </figure>
 
                     <h3 class="post-subheading">The program built but exits instantly with no output</h3>
