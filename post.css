@@ -1,0 +1,503 @@
+/*
+ * post.css
+ * Styles for individual blog post / article pages
+ * Requires: site.css loaded first
+ *
+ * Written to be reusable: every future post page can link this
+ * file and get the same article typography, code blocks, and callouts.
+ */
+
+/* ===========================
+   POST-LOCAL VARIABLES
+   =========================== */
+
+:root {
+    --font-mono: 'JetBrains Mono', 'Consolas', 'SFMono-Regular', ui-monospace, monospace;
+
+    /* Code surfaces sit a touch darker than the card surface so
+       terminal blocks read as inset rather than raised. */
+    --color-code-bg: rgba(4, 1, 3, 0.94);
+    --color-code-border: rgba(255, 77, 166, 0.18);
+    --color-code-text: #f0e4ec;
+    --color-code-comment: #8d7f89;
+}
+
+/* ===========================
+   POST HEADER
+   =========================== */
+
+.post-header {
+    margin-bottom: 2.5rem;
+}
+
+.post-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: 0.8rem;
+}
+
+.post-heading {
+    font-family: var(--font-display);
+    font-size: 2.1rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.25;
+    margin-bottom: 0.9rem;
+}
+
+.post-heading::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 2px;
+    background: var(--color-accent);
+    box-shadow: 0 0 10px var(--color-glow);
+    margin-top: 0.9rem;
+}
+
+.post-byline {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 1.4rem;
+}
+
+.post-lede {
+    font-size: 1.02rem;
+    font-weight: 300;
+    color: var(--color-text-muted);
+    line-height: 1.75;
+    max-width: 650px;
+}
+
+/* ===========================
+   TABLE OF CONTENTS
+   =========================== */
+
+.post-toc {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.post-toc-title {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+}
+
+.post-toc ol {
+    list-style: none;
+    counter-reset: toc;
+}
+
+.post-toc li {
+    counter-increment: toc;
+    margin-bottom: 0.35rem;
+}
+
+.post-toc li::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-accent);
+    margin-right: 0.7rem;
+}
+
+.post-toc a {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color 0.25s ease;
+}
+
+.post-toc a:hover,
+.post-toc a:focus-visible {
+    color: var(--color-accent);
+}
+
+/* ===========================
+   ARTICLE BODY TYPOGRAPHY
+   =========================== */
+
+.post-body {
+    max-width: 720px;
+}
+
+.post-body p {
+    font-size: 0.98rem;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--color-text-muted);
+    margin-bottom: 1.1rem;
+}
+
+.post-body strong {
+    color: var(--color-text);
+    font-weight: 500;
+}
+
+.post-body a:not(.text-link) {
+    color: var(--color-accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-border);
+    transition: border-color 0.25s ease;
+}
+
+.post-body a:not(.text-link):hover {
+    border-color: var(--color-accent);
+}
+
+/* Section headings carry a step number when the content is a
+   real sequence — the install steps genuinely are one. */
+.post-section {
+    margin-bottom: 3rem;
+    scroll-margin-top: 1.5rem;
+}
+
+.post-section-heading {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--color-text);
+    margin-bottom: 1rem;
+    line-height: 1.35;
+}
+
+.post-section-heading::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 2px;
+    background: var(--color-accent);
+    box-shadow: 0 0 10px var(--color-glow);
+    margin-top: 0.5rem;
+}
+
+.step-number {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--color-accent);
+    letter-spacing: 0.05em;
+    margin-right: 0.6rem;
+    vertical-align: 0.15em;
+}
+
+.post-subheading {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    color: var(--color-text);
+    margin: 1.8rem 0 0.7rem 0;
+}
+
+/* ===========================
+   LISTS
+   =========================== */
+
+.post-body ul,
+.post-body ol {
+    margin: 0 0 1.3rem 0;
+    padding-left: 1.4rem;
+}
+
+.post-body li {
+    font-size: 0.95rem;
+    font-weight: 300;
+    line-height: 1.75;
+    color: var(--color-text-muted);
+    margin-bottom: 0.45rem;
+}
+
+.post-body li::marker {
+    color: var(--color-accent);
+}
+
+/* ===========================
+   CODE
+   =========================== */
+
+code {
+    font-family: var(--font-mono);
+}
+
+/* Inline code */
+.post-body :not(pre) > code {
+    font-size: 0.85em;
+    color: var(--color-accent-hover);
+    background: rgba(255, 77, 166, 0.08);
+    border: 1px solid var(--color-code-border);
+    border-radius: 3px;
+    padding: 0.1em 0.38em;
+    white-space: nowrap;
+}
+
+/* Block code */
+.code-block {
+    position: relative;
+    margin: 0 0 1.4rem 0;
+}
+
+.code-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    background: var(--color-surface);
+    border: 1px solid var(--color-code-border);
+    border-bottom: none;
+    border-radius: 5px 5px 0 0;
+    padding: 0.45rem 0.9rem;
+}
+
+.code-label + pre {
+    border-radius: 0 0 5px 5px;
+    border-top: none;
+}
+
+.code-block pre {
+    background: var(--color-code-bg);
+    border: 1px solid var(--color-code-border);
+    border-radius: 5px;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.code-block pre code {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: var(--color-code-text);
+    white-space: pre;
+    tab-size: 4;
+}
+
+/* A dim comment class so terminal transcripts stay readable */
+.code-block .c {
+    color: var(--color-code-comment);
+}
+
+/* Copy button (injected by the inline script on the post page) */
+.copy-btn {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.55rem;
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    background: rgba(10, 4, 8, 0.9);
+    border: 1px solid var(--color-code-border);
+    border-radius: 3px;
+    padding: 0.3rem 0.55rem;
+    cursor: pointer;
+    transition: opacity 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.code-label ~ .copy-btn,
+.code-block:has(.code-label) .copy-btn {
+    top: 2.35rem;
+}
+
+.copy-btn:hover,
+.copy-btn:focus-visible {
+    border-color: var(--color-accent);
+    color: var(--color-accent-hover);
+}
+
+.copy-btn.is-copied {
+    color: var(--color-text);
+    border-color: var(--color-accent);
+}
+
+/* Fade the button in on pointer devices; keep it always visible on touch */
+@media (hover: hover) {
+    .copy-btn {
+        opacity: 0;
+    }
+
+    .code-block:hover .copy-btn,
+    .copy-btn:focus-visible {
+        opacity: 1;
+    }
+}
+
+/* ===========================
+   CALLOUTS
+   =========================== */
+
+.callout {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-left: 2px solid var(--color-accent);
+    border-radius: 0 6px 6px 0;
+    padding: 1rem 1.2rem;
+    margin: 0 0 1.4rem 0;
+}
+
+.callout-title {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: 0.4rem;
+}
+
+.callout p:last-child {
+    margin-bottom: 0;
+}
+
+/* ===========================
+   KEYBOARD KEYS
+   =========================== */
+
+kbd {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-text);
+    background: rgba(28, 10, 20, 0.95);
+    border: 1px solid var(--color-border);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    white-space: nowrap;
+}
+
+/* ===========================
+   COMPARISON TABLE
+   =========================== */
+
+.table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1.4rem;
+}
+
+.post-table {
+    width: 100%;
+    min-width: 480px;
+    border-collapse: collapse;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+}
+
+.post-table th,
+.post-table td {
+    text-align: left;
+    padding: 0.75rem 0.9rem;
+    font-size: 0.88rem;
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+}
+
+.post-table th {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text);
+}
+
+.post-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* ===========================
+   POST FOOTER / NAVIGATION
+   =========================== */
+
+.post-end {
+    border-top: 1px solid var(--color-border);
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+}
+
+.post-back {
+    display: inline-block;
+    font-size: 0.8rem;
+    color: var(--color-accent);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.25s ease;
+}
+
+.post-back:hover {
+    color: var(--color-accent-hover);
+}
+
+/* ===========================
+   FOCUS VISIBILITY
+   =========================== */
+
+.post-body a:focus-visible,
+.post-toc a:focus-visible,
+.copy-btn:focus-visible,
+.post-back:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+}
+
+/* ===========================
+   RESPONSIVE: TABLETS & PHONES
+   =========================== */
+
+@media (max-width: 768px) {
+    .post-heading {
+        font-size: 1.7rem;
+    }
+
+    .post-section-heading {
+        font-size: 1.15rem;
+    }
+
+    .post-toc {
+        padding: 1.1rem 1.2rem;
+    }
+
+    .code-block pre {
+        padding: 0.9rem 1rem;
+    }
+
+    .code-block pre code {
+        font-size: 0.8rem;
+    }
+
+    /* Inline code can wrap on narrow screens rather than
+       forcing the whole paragraph to scroll. */
+    .post-body :not(pre) > code {
+        white-space: normal;
+    }
+}
+
+/* ===========================
+   ACCESSIBILITY: REDUCED MOTION
+   =========================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .copy-btn {
+        transition: none;
+        opacity: 1;
+    }
+}

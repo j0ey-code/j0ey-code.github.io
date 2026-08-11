@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Installing a C/C++ Compiler on Windows — j0ey-code</title>
+    <meta name="description" content="A step-by-step guide to getting GCC (and, optionally, MSVC or WSL) compiling C and C++ on a clean Windows 11 machine.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="site.css">
+    <link rel="stylesheet" href="post.css">
+</head>
+<body>
+
+    <!-- Landing page return button (desktop only) -->
+    <div class="return-bar">
+        <a href="index.html" class="return-link">&larr; Landing</a>
+    </div>
+
+    <!-- Site header and navigation -->
+    <header class="site-header">
+        <nav class="site-nav">
+            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+
+            <div class="nav-links">
+                <a href="homepage.html">Home</a>
+                <a href="about.html">About Me</a>
+                <a href="projects.html">Projects</a>
+                <a href="blog.html" class="active">Blog</a>
+                <a href="contact.html">Contact</a>
+                <a href="index.html" class="mobile-return">&larr; Back to Landing</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main page content -->
+    <main class="page-content">
+
+        <article>
+
+            <!-- Post header -->
+            <header class="post-header">
+                <div class="post-eyebrow">Tutorial</div>
+                <h1 class="post-heading">Installing a C/C++ Compiler on Windows 11</h1>
+                <div class="post-byline">August 2026 &middot; Windows &middot; Toolchains &middot; C / C++ &middot; ~15 min read</div>
+                <p class="post-lede">
+                    Windows operating systems do not natively ship with a C or C++ compiler like Linux or macOS, 
+                    which often makes the very first step of "learning C/C++" the hardest one for Windows users. 
+                    This blogpost walks through getting a complete GCC toolchain running on a clean Windows 11 install, 
+                    from download to a compiled executable, and then covers the two alternatives worth knowing about: 
+                    Microsoft's own MSVC, and the Linux toolchain via WSL.
+                </p>
+            </header>
+
+            <!-- Table of contents -->
+            <nav class="post-toc" aria-label="Contents">
+                <div class="post-toc-title">Contents</div>
+                <ol>
+                    <li><a href="#choosing">Choosing a toolchain</a></li>
+                    <li><a href="#before">Before you start</a></li>
+                    <li><a href="#install">Install MSYS2</a></li>
+                    <li><a href="#update">Update the package database</a></li>
+                    <li><a href="#toolchain">Install the compiler toolchain</a></li>
+                    <li><a href="#path">Add the compiler to PATH</a></li>
+                    <li><a href="#verify">Verify the install</a></li>
+                    <li><a href="#compile">Compile your first program</a></li>
+                    <li><a href="#vscode">Wire it into VS Code</a></li>
+                    <li><a href="#msvc">Alternative: MSVC Build Tools</a></li>
+                    <li><a href="#wsl">Alternative: GCC under WSL</a></li>
+                    <li><a href="#troubleshooting">Troubleshooting</a></li>
+                </ol>
+            </nav>
+
+            <div class="post-body">
+
+                <!-- 01 -->
+                <section class="post-section" id="choosing">
+                    <h2 class="post-section-heading"><span class="step-number">01</span>Choosing a toolchain</h2>
+
+                    <p>
+                        There are three realistic ways to compile C and C++ on Windows 11, and they
+                        are not interchangeable. Picking one on purpose now saves a lot of confusion
+                        later, because binaries and libraries built by one toolchain generally will
+                        not link against another.
+                    </p>
+
+                    <div class="table-wrap">
+                        <table class="post-table">
+                            <thead>
+                                <tr>
+                                    <th>Toolchain</th>
+                                    <th>Compilers</th>
+                                    <th>Best for</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>MinGW-w64 via MSYS2</strong></td>
+                                    <td><code>gcc</code>, <code>g++</code>, <code>gdb</code></td>
+                                    <td>Native Windows <code>.exe</code> files, coursework, portable code that also builds on Linux. This is the setup I use.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>MSVC Build Tools</strong></td>
+                                    <td><code>cl.exe</code>, <code>link.exe</code></td>
+                                    <td>Windows API and COM work, Visual Studio projects, anything consuming a library shipped as an MSVC <code>.lib</code>.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>WSL 2</strong></td>
+                                    <td><code>gcc</code>, <code>g++</code>, <code>clang</code></td>
+                                    <td>Code that targets Linux servers, or systems work that needs real POSIX behaviour rather than an emulation of it.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>
+                        The main path below installs <strong>MinGW-w64 through MSYS2</strong>. It gives you
+                        a current GCC, the GDB debugger, and a package manager to keep them updated, and
+                        it produces ordinary Windows executables that you can hand to someone else and
+                        expect to run. Sections 10 and 11 cover the other two if you need them.
+                    </p>
+
+                    <div class="callout">
+                        <div class="callout-title">Why not the old MinGW installer?</div>
+                        <p>
+                            The original <code>mingw.org</code> distribution has not shipped a modern GCC in
+                            years and only targets 32-bit. MinGW-w64 is the maintained fork, and MSYS2 is
+                            the most reliable way to get it. If you already have an old MinGW on this
+                            machine, uninstall it and strip it out of PATH before continuing; two GCCs on
+                            one PATH is the single most common source of "it compiled yesterday" bugs.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 02 -->
+                <section class="post-section" id="before">
+                    <h2 class="post-section-heading"><span class="step-number">02</span>Before you start</h2>
+
+                    <ul>
+                        <li>Windows 11, 64-bit. Everything here also works on Windows 10 22H2.</li>
+                        <li>An account that can install software. You do not need to run the terminal as administrator for any step except the installer itself.</li>
+                        <li>Roughly <strong>3 GB</strong> of free disk space for MSYS2 plus the toolchain.</li>
+                        <li>A working internet connection; the toolchain is downloaded from mirrors during install.</li>
+                    </ul>
+
+                    <p>
+                        One note on terminals, since this trips people up constantly. MSYS2 installs
+                        <em>several</em> Start menu entries that all look like the same terminal: MSYS2 MSYS,
+                        MSYS2 UCRT64, MSYS2 MINGW64, and others. They are different environments with
+                        different PATHs and different package prefixes. Which one you open matters. I will
+                        be explicit each time.
+                    </p>
+                </section>
+
+                <!-- 03 -->
+                <section class="post-section" id="install">
+                    <h2 class="post-section-heading"><span class="step-number">03</span>Install MSYS2</h2>
+
+                    <p>
+                        Download the installer from <a href="https://www.msys2.org/" target="_blank" rel="noopener">msys2.org</a>
+                        and run it. Accept the default install location, <code>C:\msys64</code>. Paths with
+                        spaces in them cause avoidable grief with build tools, so if you do move it, keep
+                        it somewhere short and space-free like <code>C:\dev\msys64</code>.
+                    </p>
+
+                    <p>
+                        If you prefer to stay in a terminal, <code>winget</code> is already on Windows 11
+                        and will do the same thing:
+                    </p>
+
+                    <figure class="code-block">
+                        <span class="code-label">PowerShell</span>
+                        <pre><code>winget install --id MSYS2.MSYS2 -e</code></pre>
+                    </figure>
+
+                    <p>
+                        Either way, when it finishes, open the Start menu and launch
+                        <strong>MSYS2 UCRT64</strong>. The prompt should show <code>UCRT64</code> in it.
+                        If it says <code>MSYS</code> instead, you have the wrong terminal open; close it and
+                        launch the UCRT64 one.
+                    </p>
+
+                    <div class="callout">
+                        <div class="callout-title">UCRT64 vs MINGW64</div>
+                        <p>
+                            UCRT64 links against Microsoft's Universal C Runtime, which has shipped with
+                            Windows since Windows 10 and handles Unicode and locales correctly. MINGW64
+                            links against the ancient <code>msvcrt.dll</code>. Both work, but UCRT is the
+                            current recommendation and what you want on Windows 11. Just be consistent:
+                            do not install half your libraries from one environment and half from the other.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 04 -->
+                <section class="post-section" id="update">
+                    <h2 class="post-section-heading"><span class="step-number">04</span>Update the package database</h2>
+
+                    <p>
+                        MSYS2 uses <code>pacman</code>, the same package manager as Arch Linux. Before
+                        installing anything, sync it. In the <strong>MSYS2 UCRT64</strong> terminal:
+                    </p>
+
+                    <figure class="code-block">
+                        <span class="code-label">MSYS2 UCRT64</span>
+                        <pre><code>pacman -Syu</code></pre>
+                    </figure>
+
+                    <p>
+                        Answer <code>Y</code> when prompted. Partway through, <strong>the terminal window
+                        may close itself</strong>. That is expected, not a crash; pacman updates its own
+                        core runtime and has to restart the shell to do it. Reopen MSYS2 UCRT64 and finish
+                        the update:
+                    </p>
+
+                    <figure class="code-block">
+                        <span class="code-label">MSYS2 UCRT64</span>
+                        <pre><code>pacman -Su</code></pre>
+                    </figure>
+
+                    <p>Repeat until pacman reports that there is nothing further to do.</p>
+                </section>
+
+                <!-- 05 -->
+                <section class="post-section" id="toolchain">
+                    <h2 class="post-section-heading"><span class="step-number">05</span>Install the compiler toolchain</h2>
+
+                    <p>
+                        Now install GCC, G++, GDB, and the supporting build utilities. This is one
+                        command and one meta-package:
+                    </p>
+
+                    <figure class="code-block">
+                        <span class="code-label">MSYS2 UCRT64</span>
+                        <pre><code>pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain</code></pre>
+                    </figure>
+
+                    <p>
+                        When it asks which members of the group to install, press <kbd>Enter</kbd> to
+                        accept all of them. It is a few hundred megabytes and takes a couple of minutes.
+                    </p>
+
+                    <p>
+                        Two extras worth adding now rather than later, since almost every real project
+                        eventually wants them:
+                    </p>
+
+                    <figure class="code-block">
+                        <span class="code-label">MSYS2 UCRT64</span>
+                        <pre><code>pacman -S --needed mingw-w64-ucrt-x86_64-cmake \
+                        mingw-w64-ucrt-x86_64-ninja</code></pre>
+                    </figure>
+
+                    <p>
+                        Note the package naming convention: <code>mingw-w64-ucrt-x86_64-</code> prefixes
+                        everything meant for the UCRT64 environment. When you go looking for a library
+                        later, search for it with that prefix, e.g. <code>pacman -Ss ucrt-x86_64-sdl2</code>.
+                    </p>
+                </section>
+
+                <!-- 06 -->
+                <section class="post-section" id="path">
+                    <h2 class="post-section-heading"><span class="step-number">06</span>Add the compiler to PATH</h2>
+
+                    <p>
+                        At this point <code>g++</code> works inside the MSYS2 terminal but nowhere else.
+                        To use it from PowerShell, Command Prompt, or VS Code, Windows needs to know where
+                        it lives. The directory is:
+                    </p>
+
+                    <figure class="code-block">
+                        <pre><code>C:\msys64\ucrt64\bin</code></pre>
+                    </figure>
+
+                    <p>To add it:</p>
+
+                    <ol>
+                        <li>Press <kbd>Win</kbd> + <kbd>R</kbd>, type <code>sysdm.cpl</code>, press <kbd>Enter</kbd>.</li>
+                        <li>Go to the <strong>Advanced</strong> tab, then click <strong>Environment Variables</strong>.</li>
+                        <li>Under <strong>User variables</strong>, select <code>Path</code> and click <strong>Edit</strong>.</li>
+                        <li>Click <strong>New</strong>, paste <code>C:\msys64\ucrt64\bin</code>, and click OK on all three dialogs.</li>
+                    </ol>
+
+                    <div class="callout">
+                        <div class="callout-title">Add only that one directory</div>
+                        <p>
+                            Do not add <code>C:\msys64\usr\bin</code> to your Windows PATH. It contains MSYS
+                            versions of common Unix utilities that will shadow Windows commands and confuse
+                            other tools. The <code>ucrt64\bin</code> directory alone is what you want.
+                        </p>
+                    </div>
+
+                    <p>
+                        PATH changes only apply to <em>newly opened</em> terminals. Close every PowerShell
+                        window you have open, along with VS Code if it is running, before testing.
+                    </p>
+                </section>
+
+                <!-- 07 -->
+                <section class="post-section" id="verify">
+                    <h2 class="post-section-heading"><span class="step-number">07</span>Verify the install</h2>
+
+                    <p>Open a fresh PowerShell window and run:</p>
+
+                    <figure class="code-block">
+                        <span class="code-label">PowerShell</span>
+                            <pre><code>gcc --version
+                                g++ --version
+                                gdb --version
+                                mingw32-make --version</code></pre>
+                    </figure>
+
+                    <p>Each should print a version banner. Then confirm Windows is resolving the binary you expect:</p>
+
+                    <figure class="code-block">
+                        <span class="code-label">PowerShell</span>
+                            <pre><code>where.exe g++
+                            <span class="c"># C:\msys64\ucrt64\bin\g++.exe</span></code></pre>
+                    </figure>
+
+                    <p>
+                        If that prints <strong>more than one line</strong>, you have another toolchain on
+                        PATH ahead of or behind this one, and whichever appears first wins. See
+                        <a href="#troubleshooting">troubleshooting</a> below.
+                    </p>
+                </section>
+
+                <!-- 08 -->
+                <section class="post-section" id="compile">
+                    <h2 class="post-section-heading"><span class="step-number">08</span>Compile your first program</h2>
+
+                    <p>Make a folder, and put this in <code>hello.cpp</code>:</p>
+
+                    <figure class="code-block">
+                        <span class="code-label">hello.cpp</span>
+                        <pre><code>#include &lt;iostream&gt;
+
+                        int main() {
+                        std::cout &lt;&lt; "Hello from g++ on Windows 11\n";
+                        return 0;
+                        }</code></pre>
+                    </figure>
+
+                    <p>Compile and run it:</p>
+
+                    <figure class="code-block">
+                        <span class="code-label">PowerShell</span>
+                        <pre><code>g++ -std=c++17 -Wall -Wextra -Wpedantic -o hello.exe hello.cpp
+                        .\hello.exe</code></pre>
+                    </figure>
+
+                    <p>The C side is the same idea. In <code>hello.c</code>:</p>
+
+                    <figure class="code-block">
+                        <span class="code-label">hello.c</span>
+                        <pre><code>#include &lt;stdio.h&gt;
+
+                        int main(void) {
+                        printf("Hello from gcc on Windows 11\n");
+                        return 0;
+                        }</code></pre>
+                    </figure>
+
+                    <figure class="code-block">
+                        <span class="code-label">PowerShell</span>
+                        <pre><code>gcc -std=c17 -Wall -Wextra -o hello.exe hello.c
+                        .\hello.exe</code></pre>
+                    </figure>
+
+                    <h3 class="post-subheading">Flags worth knowing from day one</h3>
+
+                    <ul>
+                        <li><code>-Wall -Wextra -Wpedantic</code> — turn on the warnings that catch real bugs. Enable them from the start and treat them as errors you have not gotten around to yet.</li>
+                        <li><code>-std=c++17</code> / <code>-std=c17</code> — pin the language standard explicitly so your build does not silently change when GCC updates its default.</li>
+                        <li><code>-g -O0</code> — a debug build: full symbols, no optimisation. Use this whenever you plan to step through code in GDB.</li>
+                        <li><code>-O2 -DNDEBUG</code> — a release build: optimised, assertions compiled out.</li>
+                    </ul>
+
+                    <h3 class="post-subheading">Handing the .exe to someone else</h3>
+
+                    <p>
+                        By default your executable depends on <code>libstdc++-6.dll</code> and
+                        <code>libgcc_s_seh-1.dll</code> from <code>C:\msys64\ucrt64\bin</code>. On your
+                        machine that is on PATH and everything is fine; on someone else's it is not, and
+                        they get a missing-DLL dialog. Link those runtimes statically instead:
+                    </p>
+
+                    <figure class="code-block">
+                        <span class="code-label">PowerShell</span>
+                        <pre><code>g++ -std=c++17 -O2 -static-libgcc -static-libstdc++ -o hello.exe hello.cpp</code></pre>
+                    </figure>
+                </section>
+
+                <!-- 09 -->
+                <section class="post-section" id="vscode">
+                    <h2 class="post-section-heading"><span class="step-number">09</span>Wire it into VS Code</h2>
+
+                    <p>
+                        Optional, but it is what most people actually want. Install the
+                        <strong>C/C++</strong> extension from Microsoft (extension ID
+                        <code>ms-vscode.cpptools</code>), then open your project folder and create
+                        <code>.vscode/tasks.json</code>:
+                    </p>
+
+                    <figure class="code-block">
+                        <span class="code-label">.vscode/tasks.json</span>
+                        <pre><code>{
+                            "version": "2.0.0",
+                            "tasks": [
+                                {
+                                    "label": "build active file (g++)",
+                                    "type": "shell",
+                                    "command": "C:/msys64/ucrt64/bin/g++.exe",
+                                    "args": [
+                                        "-std=c++17",
+                                        "-Wall",
+                                        "-Wextra",
+                                        "-g",
+                                        "${file}",
+                                        "-o",
+                                        "${fileDirname}/${fileBasenameNoExtension}.exe"
+                                    ],
+                                    "group": { "kind": "build", "isDefault": true },
+                                    "problemMatcher": ["$gcc"]
+                                }
+                            ]
+                        }</code></pre>
+                    </figure>
+
+                    <p>
+                        <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd> now builds the file you have
+                        open, and compiler errors become clickable entries in the Problems panel. For
+                        debugging, add a launch configuration with <code>"type": "cppdbg"</code> and
+                        <code>"miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe"</code>.
+                    </p>
+
+                    <p>
+                        Forward slashes in those paths are deliberate. JSON treats a backslash as an
+                        escape character, so <code>C:\msys64</code> either errors or silently becomes
+                        something you did not intend.
+                    </p>
+                </section>
+
+                <!-- 10 -->
+                <section class="post-section" id="msvc">
+                    <h2 class="post-section-heading"><span class="step-number">10</span>Alternative: MSVC Build Tools</h2>
+
+                    <p>
+                        If you are writing against the Win32 API, consuming a library distributed as an
+                        MSVC <code>.lib</code>, or working in a codebase that already targets Visual
+                        Studio, use Microsoft's compiler instead. You do not need the full Visual Studio
+                        IDE for this.
+                    </p>
+
+                    <ol>
+                        <li>Download <strong>Build Tools for Visual Studio</strong> from Microsoft's downloads page, under "Tools for Visual Studio".</li>
+                        <li>In the installer, check the <strong>Desktop development with C++</strong> workload and install.</li>
+                        <li>Open <strong>Developer PowerShell for VS</strong> from the Start menu, not a plain terminal.</li>
+                    </ol>
+
+                    <figure class="code-block">
+                        <span class="code-label">Developer PowerShell for VS</span>
+                            <pre><code>cl /EHsc /std:c++17 /W4 hello.cpp
+                            .\hello.exe</code></pre>
+                    </figure>
+
+                    <p>
+                        MSVC deliberately does not add itself to your global PATH, because it needs a
+                        pile of environment variables set to find its headers and libraries. That is what
+                        the developer prompt does for you. Running <code>cl</code> from an ordinary
+                        terminal will fail even when the install is perfectly fine.
+                    </p>
+                </section>
+
+                <!-- 11 -->
+                <section class="post-section" id="wsl">
+                    <h2 class="post-section-heading"><span class="step-number">11</span>Alternative: GCC under WSL</h2>
+
+                    <p>
+                        If your code is destined for a Linux machine, or you want the real POSIX
+                        interfaces rather than approximations of them, compile inside WSL. From an
+                        administrator PowerShell:
+                    </p>
+
+                    <figure class="code-block">
+                        <span class="code-label">PowerShell (Administrator)</span>
+                            <pre><code>wsl --install</code></pre>
+                    </figure>
+
+                    <p>Reboot, let Ubuntu finish first-run setup, then inside the Ubuntu shell:</p>
+
+                    <figure class="code-block">
+                        <span class="code-label">Ubuntu (WSL)</span>
+                            <pre><code>sudo apt update
+                            sudo apt install build-essential gdb</code></pre>
+                    </figure>
+
+                    <p>
+                        That gives you <code>gcc</code>, <code>g++</code>, <code>make</code>, and GDB. Keep
+                        your source files on the Linux filesystem under <code>~/</code> rather than on
+                        <code>/mnt/c/</code> — cross-filesystem access is dramatically slower, enough to
+                        be noticeable on any build with more than a handful of files. VS Code's
+                        <strong>WSL</strong> extension will attach to the distro and treat it as the
+                        build environment.
+                    </p>
+
+                    <p>
+                        The output here is an ELF binary, not a Windows <code>.exe</code>. That is the
+                        point, but it is worth being clear about: WSL is for targeting Linux, not for
+                        producing Windows programs.
+                    </p>
+                </section>
+
+                <!-- 12 -->
+                <section class="post-section" id="troubleshooting">
+                    <h2 class="post-section-heading"><span class="step-number">12</span>Troubleshooting</h2>
+
+                    <h3 class="post-subheading">"g++ is not recognized as the name of a cmdlet"</h3>
+                    <p>
+                        PATH is not being picked up. Almost always this is one of three things: the entry
+                        was added to a dialog that got cancelled, the terminal was open before the change
+                        was made, or the path has a typo. Confirm what Windows actually has:
+                    </p>
+
+                    <figure class="code-block">
+                        <span class="code-label">PowerShell</span>
+                            <pre><code>$env:Path -split ';' | Select-String msys64</code></pre>
+                    </figure>
+
+                    <h3 class="post-subheading">The wrong compiler runs</h3>
+                    <p>
+                        <code>where.exe g++</code> printing several lines means something else is
+                        shipping a GCC — Strawberry Perl, Git for Windows, Chocolatey's mingw package,
+                        and various IDE bundles all do. Either uninstall the extra one or move
+                        <code>C:\msys64\ucrt64\bin</code> above it in the PATH editor, and reopen the
+                        terminal.
+                    </p>
+
+                    <h3 class="post-subheading">pacman reports signature or keyring errors</h3>
+                    <p>
+                        The bundled keyring has gone stale, usually on an MSYS2 install that sat unused
+                        for a long time. In the MSYS2 terminal:
+                    </p>
+
+                    <figure class="code-block">
+                        <span class="code-label">MSYS2 UCRT64</span>
+                            <pre><code>pacman -Sy msys2-keyring
+                            pacman -Syu</code></pre>
+                    </figure>
+
+                    <h3 class="post-subheading">The program built but exits instantly with no output</h3>
+                    <p>
+                        Double-clicking a console <code>.exe</code> in Explorer opens a window, runs the
+                        program, and closes the window the moment <code>main</code> returns. Nothing is
+                        wrong. Run it from a terminal instead, which is where console programs are meant
+                        to be run.
+                    </p>
+
+                    <h3 class="post-subheading">Windows Defender quarantines your executable</h3>
+                    <p>
+                        Freshly compiled, unsigned binaries occasionally trip heuristic detection. It is
+                        a false positive. Adding your projects directory as an exclusion in Windows
+                        Security stops it — do this for a directory you control, and not for anything
+                        broad like your whole user profile.
+                    </p>
+
+                    <h3 class="post-subheading">Undefined references when linking a library</h3>
+                    <p>
+                        If the library was built with MSVC and you are linking with GCC (or the reverse),
+                        it will not work; the two use incompatible ABIs and name mangling. Get a build of
+                        the library for your toolchain, ideally from pacman:
+                        <code>pacman -Ss ucrt-x86_64-&lt;library&gt;</code>.
+                    </p>
+                </section>
+
+                <!-- Closing -->
+                <section class="post-section" id="next">
+                    <h2 class="post-section-heading">Where to go from here</h2>
+
+                    <p>
+                        Once <code>g++ hello.cpp</code> works, the next things worth learning, roughly in
+                        order: a build system so you stop typing compiler flags by hand (CMake with
+                        Ninja, both installed in step 05), then GDB properly, then a sanitiser pass with
+                        <code>-fsanitize=address,undefined</code> on your debug builds, which will find
+                        memory bugs far earlier than reading the code again will.
+                    </p>
+
+                    <p>
+                        My <a href="projects.html">filesystem utility</a> is built with exactly this
+                        toolchain, so if you want a slightly larger example of a real C++17 project
+                        compiled this way, the source is on GitHub. Corrections and questions are welcome
+                        via the <a href="contact.html">contact page</a>.
+                    </p>
+                </section>
+
+            </div>
+
+            <!-- Post footer -->
+            <footer class="post-end">
+                <a href="blog.html" class="post-back">&larr; Back to All Posts</a>
+            </footer>
+
+        </article>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="https://github.com/j0ey-code">GitHub</a>
+            <a href="https://www.linkedin.com/in/joseph-lincoln-79055b3b4/">LinkedIn</a>
+            <a href="mailto:alias.glacier901@passmail.net">Email</a>
+        </div>
+        <span class="footer-copy">&copy; 2026 j0ey-code — All Rights Reserved</span>
+    </footer>
+
+    <script src="assets/scripts/site.js"></script>
+
+    <!--
+        Copy-to-clipboard for code blocks.
+        Local to post pages, so it lives here rather than in site.js.
+        If you add more posts, move this into assets/scripts/post.js.
+    -->
+    <script>
+    (function () {
+        if (!navigator.clipboard) return;
+
+        document.querySelectorAll('.code-block').forEach(function (block) {
+            const code = block.querySelector('pre code');
+            if (!code) return;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'copy-btn';
+            btn.textContent = 'Copy';
+            btn.setAttribute('aria-label', 'Copy code to clipboard');
+
+            btn.addEventListener('click', function () {
+                navigator.clipboard.writeText(code.innerText).then(function () {
+                    btn.textContent = 'Copied';
+                    btn.classList.add('is-copied');
+                    setTimeout(function () {
+                        btn.textContent = 'Copy';
+                        btn.classList.remove('is-copied');
+                    }, 1600);
+                }).catch(function () {
+                    btn.textContent = 'Press Ctrl+C';
+                    setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+                });
+            });
+
+            block.appendChild(btn);
+        });
+    })();
+    </script>
+
+</body>
+</html>
