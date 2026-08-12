@@ -291,7 +291,7 @@ code {
     color: var(--color-code-comment);
 }
 
-/* Copy button (injected by the inline script on the post page) */
+/* Copy button (injected by assets/scripts/post.js) */
 .copy-btn {
     position: absolute;
     top: 0.55rem;

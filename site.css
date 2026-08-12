@@ -19,6 +19,18 @@
 html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+
+    /* Paint the canvas itself, not just <body>. iOS Safari rubber-band
+       scrolls past the document box; whatever is painted here is what
+       shows in that overscroll gap (previously the default white).
+       See the BACKGROUND LAYER note below for why the gradient can't
+       live on <body> anymore. (--color-bg is declared on :root below;
+       the literal is the fallback for a failed variable lookup.) */
+    background-color: var(--color-bg, #000000);
+
+    /* Tells the browser this is a dark UI: dark scrollbars, dark form
+       controls, dark overscroll gutter, no white flash before paint. */
+    color-scheme: dark;
 }
 
 body {
@@ -26,6 +38,10 @@ body {
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
     overflow-wrap: break-word;
+
+    /* Must stay transparent: <body> paints above the negative z-index
+       background layers below, so any background here would bury them. */
+    background: transparent;
 }
 
 /* ===========================
@@ -58,7 +74,38 @@ body {
     color: var(--color-text);
     line-height: 1.6;
 
-    /* Animated gradient background */
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+/* ===========================
+   BACKGROUND LAYER
+   The animated gradient used to sit on <body> and reach the edges of
+   the screen only by background propagation (the browser lifting a
+   body background onto the canvas). That propagated layer is an
+   animated gradient with no colour underneath it, and iOS Safari only
+   paints it for the document box — so rubber-band scrolling exposed
+   bare white canvas above and below the page.
+
+   Now the canvas is a solid colour on <html> and the gradient is its
+   own fixed layer, so every browser paints the same thing: gradient
+   inside the viewport, --color-bg in the overscroll gap.
+
+   Stacking order inside the root stacking context, back to front:
+     <html> background   solid --color-bg, covers the whole canvas
+     html::before  (-3)  animated gradient
+     body::before  (-2)  streak bloom
+     body::after   (-1)  streak core line
+     <body> + content    everything else
+   =========================== */
+
+html::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -3;
+    pointer-events: none;
+
     background: linear-gradient(
         315deg,
         var(--color-bg-warm) 0%,
@@ -68,9 +115,6 @@ body {
     );
     background-size: 300% 300%;
     animation: gradientShift 25s ease infinite;
-
-    min-height: 100vh;
-    min-height: 100dvh;
 }
 
 @keyframes gradientShift {
@@ -190,6 +234,8 @@ body::after {
 
 .return-bar {
     padding: 0.6rem 1.5rem 1.2rem 1.5rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
 }
 
 .return-link {
@@ -217,8 +263,14 @@ body::after {
    NAVIGATION
    =========================== */
 
+/* Safe-area gutters are applied at every width, not just phone widths:
+   a notched iPhone held in landscape is ~844px wide, so a max-width
+   phone query never fires and the content runs under the notch.
+   Browsers without env() drop these two lines and keep the shorthand. */
 .site-header {
     padding: 0 1.5rem 1.2rem 1.5rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
 }
 
 .site-nav {
@@ -314,6 +366,8 @@ body::after {
     max-width: 900px;
     margin: 0 auto;
     padding: 2.5rem 1.5rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
 
     animation: fadeIn 0.8s ease forwards;
 }
@@ -382,6 +436,9 @@ body::after {
 .site-footer {
     border-top: 1px solid var(--color-border);
     padding: 2rem 1.5rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
     max-width: 900px;
     margin: 2rem auto 0 auto;
     display: flex;
@@ -430,8 +487,10 @@ body::after {
         display: none;
     }
 
+    /* Top/bottom only — the base rule's safe-area gutters must survive. */
     .site-header {
-        padding: 0.8rem 1.5rem 0 1.5rem;
+        padding-top: 0.8rem;
+        padding-bottom: 0;
     }
 
     .site-nav {
@@ -511,23 +570,8 @@ body::after {
 
 @media (max-width: 480px) {
 
-    /* Safe area padding for notched phones (iPhone X+, Pixel, etc.) */
-    .site-header {
-        padding-left: max(1.5rem, env(safe-area-inset-left));
-        padding-right: max(1.5rem, env(safe-area-inset-right));
-    }
-
-    .page-content {
-        padding-left: max(1.5rem, env(safe-area-inset-left));
-        padding-right: max(1.5rem, env(safe-area-inset-right));
-    }
-
-    .site-footer {
-        padding-left: max(1.5rem, env(safe-area-inset-left));
-        padding-right: max(1.5rem, env(safe-area-inset-right));
-        padding-bottom: max(2rem, env(safe-area-inset-bottom));
-    }
-
+    /* Safe-area gutters now live in the base rules above, so they apply
+       in landscape too — only the phone-specific spacing remains here. */
     .page-content {
         padding-top: 1.5rem;
     }
@@ -549,7 +593,8 @@ body::after {
    =========================== */
 
 @media (prefers-reduced-motion: reduce) {
-    body {
+    /* Gradient layer holds a still frame instead of drifting. */
+    html::before {
         animation: none;
     }
 
