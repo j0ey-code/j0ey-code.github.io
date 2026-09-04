@@ -1,0 +1,198 @@
+/*
+ * landing.css
+ * Styles for the landing / entry page.
+ *
+ * Ported from the old index.css. Three blocks were REMOVED rather than
+ * copied, because a single-page app loads every stylesheet globally and
+ * at once -- so anything left here would have applied to all six pages,
+ * not just the landing:
+ *
+ *   1. The `*, *::before, *::after` reset  -- byte-identical to the one
+ *      already in site.css, which is now always loaded.
+ *   2. `html, body { height: 100% }`       -- landing-only in the old
+ *      multi-page site. Made global it can trap the taller inner pages
+ *      at viewport height and break their scrolling. Not needed anyway:
+ *      `.landing` sets its own `min-height: 100dvh` below.
+ *   3. The theme half of :root            -- --color-bg, --color-text,
+ *      --color-accent and friends were an exact duplicate of site.css's
+ *      block (the old file even carried a "keep in step with site.css"
+ *      note). site.css is the single source of truth for them now.
+ *
+ * What stays below is only what is genuinely landing-specific.
+ */
+
+/* ===========================
+   CSS VARIABLES
+   Landing-only tokens. The colour and font-family tokens these build on
+   (--color-text, --font-display, --font-body) come from site.css.
+   =========================== */
+
+:root {
+    --color-subtitle: #e9dfe6;
+    --font-size-title: 2.8rem;
+    --font-size-subtitle: 1.05rem;
+    --icon-size: 120px;
+}
+
+/* ===========================
+   FLEX LAYOUT
+   Background is left transparent so the shared body gradient
+   and the light streak from site.css show through.
+   =========================== */
+
+.landing {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 100vh fallback for older browsers, 100dvh for modern (fixes iOS Safari) */
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    background: transparent;
+
+    color: var(--color-text);
+    font-family: var(--font-body);
+}
+
+/* ===========================
+   CONTENT WRAPPER
+   =========================== */
+
+.landing-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+    padding: 2rem;
+
+    animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===========================
+   FONTS AND TEXT
+   =========================== */
+
+.landing-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-title);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+}
+
+.landing-subtitle {
+    font-size: var(--font-size-subtitle);
+    color: var(--color-subtitle);
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+/* ===========================
+   ICON
+   =========================== */
+
+.landing-icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--color-accent);
+    box-shadow: 0 0 24px var(--color-glow);
+
+    background: linear-gradient(
+        160deg,
+        var(--color-accent) 0%,
+        var(--color-bg-mid) 100%
+    );
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.landing-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.landing-icon svg {
+    width: 50%;
+    height: 50%;
+    stroke: var(--color-text);
+    opacity: 0.6;
+}
+
+/* ===========================
+   ENTRY LINK / BUTTON
+   =========================== */
+
+.landing-enter {
+    display: inline-block;
+    padding: 0.75rem 2.5rem;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: 4px;
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.landing-enter:hover {
+    background: var(--color-accent);
+    color: #12000a;
+}
+
+@media (hover: hover) {
+    .landing-enter:hover {
+        box-shadow: 0 0 20px var(--color-glow), 0 0 44px var(--color-glow);
+    }
+}
+
+/* ===========================
+   DYNAMIC SCREEN SIZING
+   =========================== */
+
+@media (max-width: 768px) {
+    :root {
+        --font-size-title: 1.9rem;
+        --font-size-subtitle: 0.9rem;
+        --icon-size: 90px;
+    }
+
+    .landing-content {
+        gap: 1.2rem;
+    }
+
+    .landing-enter {
+        padding: 0.65rem 2rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* ===========================
+   ACCESSIBILITY: REDUCED MOTION
+   =========================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .landing-content {
+        animation: none;
+    }
+}

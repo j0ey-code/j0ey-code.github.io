@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <title>Redirecting… — j0ey-code</title>
+    <style>
+        html { background: #000; }
+        body { margin: 0; }
+    </style>
+    <script>
+        /*
+         * GitHub Pages SPA fallback.
+         *
+         * Pages is a static file host: it knows nothing about the routes
+         * defined in App.jsx. Clicking a link inside the running app is
+         * fine -- the router handles that in the browser, no request is
+         * made. But loading /projects directly (a refresh, a bookmark, a
+         * link someone shared) makes Pages look for a file at that path,
+         * find none, and serve this 404.html.
+         *
+         * So this page stashes the requested path in sessionStorage,
+         * bounces to the site root -- which IS a real file, index.html --
+         * and main.jsx restores the URL before React Router reads it. The
+         * visitor sees the page they asked for.
+         *
+         * replace() rather than assign() so the redirect leaves no entry
+         * in the back-button history.
+         */
+        sessionStorage.setItem(
+            'spa-redirect-path',
+            window.location.pathname + window.location.search + window.location.hash
+        );
+        window.location.replace('/');
+    </script>
+</head>
+<body>
+    <!-- Shown only if JavaScript is disabled, where the redirect cannot run. -->
+    <noscript>
+        This site needs JavaScript. <a href="/" style="color:#ff4da6">Go to the homepage</a>.
+    </noscript>
+</body>
+</html>

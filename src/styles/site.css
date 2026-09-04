@@ -1,0 +1,612 @@
+/*
+ * site.css
+ * Shared styles across all inner pages (homepage, about, projects, contact)
+ * Landing page uses its own standalone stylesheet.
+ */
+
+/* ===========================
+   RESET & BASE
+   =========================== */
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+
+    /* Paint the canvas itself, not just <body>. iOS Safari rubber-band
+       scrolls past the document box; whatever is painted here is what
+       shows in that overscroll gap (previously the default white).
+       See the BACKGROUND LAYER note below for why the gradient can't
+       live on <body> anymore. (--color-bg is declared on :root below;
+       the literal is the fallback for a failed variable lookup.) */
+    background-color: var(--color-bg, #000000);
+
+    /* Tells the browser this is a dark UI: dark scrollbars, dark form
+       controls, dark overscroll gutter, no white flash before paint. */
+    color-scheme: dark;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+    overflow-wrap: break-word;
+
+    /* Must stay transparent: <body> paints above the negative z-index
+       background layers below, so any background here would bury them. */
+    background: transparent;
+}
+
+/* ===========================
+   CSS VARIABLES
+   =========================== */
+
+:root {
+    /* Black / hot-pink theme: near-black field, single pink light streak */
+    --color-bg: #000000;
+    --color-bg-mid: #08040a;
+    --color-bg-warm: #150610;
+    --color-text: #f4ebf1;
+    --color-text-muted: #a89aa3;
+    --color-accent: #ff4da6;
+    --color-accent-hover: #ff8fc6;
+    --color-surface: rgba(10, 4, 8, 0.92);
+    --color-surface-hover: rgba(28, 10, 20, 0.95);
+    --color-border: rgba(255, 77, 166, 0.22);
+    --color-glow: rgba(255, 77, 166, 0.35);
+    --font-display: 'Rockwell', 'Cambria', Georgia, serif;
+    --font-body: 'Outfit', 'Century Gothic', 'Futura', sans-serif;
+
+    /* Light streak: sits low in the viewport, drifts on scroll (see site.js) */
+    --streak-pos: 74%;
+    --streak-shift: 0px;
+}
+
+body {
+    font-family: var(--font-body);
+    color: var(--color-text);
+    line-height: 1.6;
+
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+/* ===========================
+   BACKGROUND LAYER
+   The animated gradient used to sit on <body> and reach the edges of
+   the screen only by background propagation (the browser lifting a
+   body background onto the canvas). That propagated layer is an
+   animated gradient with no colour underneath it, and iOS Safari only
+   paints it for the document box — so rubber-band scrolling exposed
+   bare white canvas above and below the page.
+
+   Now the canvas is a solid colour on <html> and the gradient is its
+   own fixed layer, so every browser paints the same thing: gradient
+   inside the viewport, --color-bg in the overscroll gap.
+
+   Stacking order inside the root stacking context, back to front:
+     <html> background   solid --color-bg, covers the whole canvas
+     html::before  (-3)  animated gradient
+     body::before  (-2)  streak bloom
+     body::after   (-1)  streak core line
+     <body> + content    everything else
+   =========================== */
+
+html::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -3;
+    pointer-events: none;
+
+    background: linear-gradient(
+        315deg,
+        var(--color-bg-warm) 0%,
+        var(--color-bg-mid) 40%,
+        var(--color-bg) 70%,
+        var(--color-bg-mid) 100%
+    );
+    background-size: 300% 300%;
+    animation: gradientShift 25s ease infinite;
+}
+
+@keyframes gradientShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ===========================
+   HORIZONTAL LIGHT STREAK
+   Fixed to the viewport, sits low on the page, and drifts
+   upward as you scroll. site.js updates --streak-shift.
+   =========================== */
+
+/* Bloom: the wide pink haze that bleeds above and below the line */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+
+    background:
+        /* outer haze — kept shallow so the page stays black */
+        radial-gradient(
+            85% 9% at 50% var(--streak-pos),
+            rgba(255, 77, 166, 0.26) 0%,
+            rgba(255, 45, 143, 0.07) 45%,
+            rgba(255, 45, 143, 0) 80%
+        ),
+        /* tight inner core glow */
+        radial-gradient(
+            55% 2.6% at 50% var(--streak-pos),
+            rgba(255, 219, 238, 0.5) 0%,
+            rgba(255, 122, 191, 0.2) 50%,
+            rgba(255, 45, 143, 0) 100%
+        );
+
+    transform: translate3d(0, var(--streak-shift), 0);
+    will-change: transform, opacity;
+
+    /* Slow breathing glow. Opacity only — animating the gradient
+       stops would repaint the whole viewport every frame. */
+    animation: streakBreathe 10s ease-in-out infinite;
+}
+
+@keyframes streakBreathe {
+    0%, 100% { opacity: 0.85; }
+    50%      { opacity: 1; }
+}
+
+/* Core: the crisp hairline running edge to edge */
+body::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: var(--streak-pos);
+    height: 2px;
+    margin-top: -1px;
+    z-index: -1;
+    pointer-events: none;
+
+    /* Two layers: a narrow glint that sweeps across, over the
+       static core. Keeping them separate means the core stays put
+       while only the highlight travels. */
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0) 40%,
+            rgba(255, 235, 246, 0.75) 50%,
+            rgba(255, 255, 255, 0) 60%
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255, 150, 205, 0.7) 0%,
+            rgba(255, 255, 255, 0.92) 50%,
+            rgba(255, 150, 205, 0.7) 100%
+        );
+    background-size: 240% 100%, 100% 100%;
+    background-position: 0% 50%, 0% 50%;
+    background-repeat: no-repeat;
+
+    /* Static envelope: pins the ends transparent and keeps the line
+       brightest mid-screen, whatever the shimmer is doing underneath. */
+    -webkit-mask-image: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(0, 0, 0, 0.45) 18%,
+        #000 50%,
+        rgba(0, 0, 0, 0.45) 82%,
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(0, 0, 0, 0.45) 18%,
+        #000 50%,
+        rgba(0, 0, 0, 0.45) 82%,
+        transparent 100%
+    );
+
+    transform: translate3d(0, var(--streak-shift), 0);
+    will-change: transform;
+
+    animation: streakShimmer 14s ease-in-out infinite;
+}
+
+@keyframes streakShimmer {
+    0%, 100% { background-position: 0% 50%, 0% 50%; }
+    50%      { background-position: 100% 50%, 0% 50%; }
+}
+
+/* ===========================
+   LANDING PAGE RETURN BUTTON
+   =========================== */
+
+.return-bar {
+    padding: 0.6rem 1.5rem 1.2rem 1.5rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+}
+
+.return-link {
+    display: inline-block;
+    padding: 0.3rem 0.9rem;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: 3px;
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.return-link:hover {
+    background: var(--color-accent);
+    color: #12000a;
+    box-shadow: 0 0 14px var(--color-glow);
+}
+
+/* ===========================
+   NAVIGATION
+   =========================== */
+
+/* Safe-area gutters are applied at every width, not just phone widths:
+   a notched iPhone held in landscape is ~844px wide, so a max-width
+   phone query never fires and the content runs under the notch.
+   Browsers without env() drop these two lines and keep the shorthand. */
+.site-header {
+    padding: 0 1.5rem 1.2rem 1.5rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+}
+
+.site-nav {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 1rem;
+}
+
+.site-nav a {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    color: var(--color-text-muted);
+    transition: color 0.25s ease;
+    text-transform: uppercase;
+}
+
+.site-nav a:hover,
+.site-nav a.active {
+    color: var(--color-accent);
+}
+
+/* ===========================
+   HAMBURGER BUTTON
+   (hidden on desktop, shown on mobile)
+   =========================== */
+
+.hamburger {
+    display: none;
+    background: none;
+    border: 1px solid var(--color-accent);
+    border-radius: 3px;
+    padding: 0.4rem;
+    cursor: pointer;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    width: 44px;
+    height: 44px;
+    transition: border-color 0.25s ease;
+}
+
+.hamburger:hover {
+    border-color: var(--color-accent-hover);
+}
+
+.hamburger-line {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: var(--color-accent);
+    border-radius: 1px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Animate into an X when menu is open */
+.hamburger.is-open .hamburger-line:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+
+.hamburger.is-open .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.is-open .hamburger-line:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
+/* ===========================
+   NAV LINKS WRAPPER
+   (on desktop: behaves as inline contents)
+   =========================== */
+
+.nav-links {
+    display: contents;
+}
+
+/* "Back to Landing" link hidden on desktop */
+.mobile-return {
+    display: none;
+}
+
+/* ===========================
+   PAGE CONTENT WRAPPER
+   =========================== */
+
+.page-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+
+    animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===========================
+   PAGE TITLE (reusable across pages)
+   =========================== */
+
+.page-title {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 1rem;
+}
+
+.page-title::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 2px;
+    background: var(--color-accent);
+    box-shadow: 0 0 10px var(--color-glow);
+    margin-top: 0.6rem;
+}
+
+.page-intro {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    max-width: 650px;
+    margin-bottom: 2.5rem;
+}
+
+/* ===========================
+   INLINE TEXT LINKS (reusable)
+   =========================== */
+
+.text-link {
+    color: var(--color-accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-border);
+    transition: border-color 0.25s ease;
+}
+
+.text-link:hover {
+    border-color: var(--color-accent);
+}
+
+/* ===========================
+   FOOTER
+   =========================== */
+
+.site-footer {
+    border-top: 1px solid var(--color-border);
+    padding: 2rem 1.5rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+    max-width: 900px;
+    margin: 2rem auto 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.footer-links a {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.25s ease;
+}
+
+.footer-links a:hover {
+    color: var(--color-accent);
+}
+
+.footer-copy {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    font-weight: 300;
+    letter-spacing: 0.03em;
+}
+
+/* ===========================
+   RESPONSIVE: TABLETS (portrait)
+   =========================== */
+
+@media (max-width: 768px) {
+
+    /* Activate hamburger menu on tablets too */
+    .hamburger {
+        display: flex;
+    }
+
+    .return-bar {
+        display: none;
+    }
+
+    /* Top/bottom only — the base rule's safe-area gutters must survive. */
+    .site-header {
+        padding-top: 0.8rem;
+        padding-bottom: 0;
+    }
+
+    .site-nav {
+        flex-wrap: wrap;
+        gap: 0;
+        padding-bottom: 0.8rem;
+    }
+
+    .site-nav .hamburger {
+        margin-right: auto;
+    }
+
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        gap: 0;
+        order: 2;
+        padding-top: 0.8rem;
+        border-top: 1px solid var(--color-border);
+        margin-top: 0.8rem;
+    }
+
+    .nav-links.is-open {
+        display: flex;
+    }
+
+    /* 44px minimum touch targets for nav links */
+    .site-nav a {
+        padding: 0.75rem 0;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+        border-bottom: 1px solid rgba(255, 77, 166, 0.1);
+    }
+
+    .site-nav a:last-child {
+        border-bottom: none;
+    }
+
+    .mobile-return {
+        display: inline-block;
+        margin-top: 0.4rem;
+        padding-top: 0.8rem;
+        border-top: 1px solid var(--color-border);
+        border-bottom: none !important;
+        font-size: 0.8rem;
+        color: var(--color-accent);
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+    }
+
+    /* Increase footer link tap targets */
+    .footer-links {
+        gap: 0;
+    }
+
+    .footer-links a {
+        padding: 0.5rem 0.75rem;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .site-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* ===========================
+   RESPONSIVE: PHONES
+   =========================== */
+
+@media (max-width: 480px) {
+
+    /* Safe-area gutters now live in the base rules above, so they apply
+       in landscape too — only the phone-specific spacing remains here. */
+    .page-content {
+        padding-top: 1.5rem;
+    }
+}
+
+/* ===========================
+   HOVER: SCOPE TRANSFORM EFFECTS
+   TO DEVICES WITH REAL HOVER
+   =========================== */
+
+@media (hover: hover) {
+    .return-link:hover {
+        box-shadow: 0 0 14px var(--color-glow);
+    }
+}
+
+/* ===========================
+   ACCESSIBILITY: REDUCED MOTION
+   =========================== */
+
+@media (prefers-reduced-motion: reduce) {
+    /* Gradient layer holds a still frame instead of drifting. */
+    html::before {
+        animation: none;
+    }
+
+    .page-content {
+        animation: none;
+    }
+
+    /* Streak stays put and stops breathing/shimmering.
+       site.js also skips the scroll listener here. */
+    body::before,
+    body::after {
+        transform: none;
+        animation: none;
+    }
+}

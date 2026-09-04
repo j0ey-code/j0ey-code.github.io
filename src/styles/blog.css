@@ -1,0 +1,111 @@
+/*
+ * blog.css
+ * Styles specific to the Blog page
+ * Requires: site.css loaded first
+ */
+
+/* ===========================
+   POST LIST
+   =========================== */
+
+.post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+/* Each post is its own card, matching the project and preview cards.
+   The solid surface also keeps the background light streak from
+   washing across the post text. */
+.post-entry {
+    display: block;
+    text-decoration: none;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 1.5rem;
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+.post-entry:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 18px var(--color-glow);
+}
+
+@media (hover: hover) {
+    .post-entry:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* ===========================
+   POST ENTRY CONTENTS
+   =========================== */
+
+.post-date {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+}
+
+.post-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.post-excerpt {
+    font-size: 0.92rem;
+    font-weight: 300;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    max-width: 650px;
+    margin-bottom: 0.6rem;
+}
+
+.post-read {
+    font-size: 0.8rem;
+    color: var(--color-accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 400;
+    transition: color 0.25s ease;
+}
+
+.post-entry:hover .post-read {
+    color: var(--color-accent-hover);
+}
+
+/* ===========================
+   RESPONSIVE: TABLETS & PHONES
+   =========================== */
+
+@media (max-width: 768px) {
+    .post-entry {
+        padding: 1.1rem 1.2rem;
+    }
+
+    .post-title {
+        font-size: 1.1rem;
+    }
+
+    .post-excerpt {
+        font-size: 0.88rem;
+    }
+}
+
+/* ===========================
+   ACCESSIBILITY: REDUCED MOTION
+   =========================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .post-entry {
+        transition: none;
+    }
+}

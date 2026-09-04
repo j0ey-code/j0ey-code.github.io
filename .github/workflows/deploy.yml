@@ -1,0 +1,60 @@
+# Builds the React site and publishes it to GitHub Pages.
+#
+# This is needed because Pages serves static files but does not run a
+# build -- it has no idea what Vite is. Pushing JSX to the repo would
+# publish the JSX. So the build happens here, in CI, and only the
+# contents of dist/ get published.
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  # Lets you re-run a deploy from the Actions tab without a new commit.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# If two pushes land close together, let the in-flight deploy finish
+# rather than cancelling it half-published.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      # `npm ci` rather than `npm install`: it installs the exact versions
+      # in package-lock.json, so CI builds what you tested locally.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
