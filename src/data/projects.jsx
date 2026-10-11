@@ -39,7 +39,7 @@ export const projects = [
     },
     {
         id: 'os-crud-cpp',
-        name: 'OS-Level, CLI-Based Filesystem Operations Utility',
+        name: 'File Management CLI Tool',
         meta: 'C++ · Operating Systems · Software Design · 2026',
         featured: true,
         description:

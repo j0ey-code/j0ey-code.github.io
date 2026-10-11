@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { newTabProps } from '../lib/links';
 
 /*
  * About -- route "/about".
@@ -65,22 +66,21 @@ export default function About() {
                 <h2 className="about-section-heading">Beyond Code</h2>
                 <p>
                     Besides programming, computer science, cybersecurity, or anything technology
-                    related, I'm an avid reader and a skilled writer. I'm also a fairly proficient musician,
+                    related, I'm an avid writer and enjoy reading for leisure. I'm also a fairly proficient musician,
                     capable of playing a handful of different instruments and carrying a tune as well.
                 </p>
             </section>
 
-            {/* Get in Touch */}
             <section className="about-section">
-                <h2 className="about-section-heading">Get in Touch</h2>
+                <h2 className="about-section-heading">Resume</h2>
                 <p>
-                    If you want to talk about a project, position, opportunity, or other
-                    collaborative effort, head over to the{' '}
-                    {/* An internal route, so this one IS a <Link> -- it navigates
-                        within the app instead of reloading the document. */}
-                    <Link to="/contact" className="text-link">contact page</Link>
-                    {' '}or find me on any of the platforms linked below in the site's footer.
+                    A snapshot of my current resume. Click the image to open the PDF.
                 </p>
+                <a href="/assets/docs/resume_JCL.pdf" className="about-resume" {...newTabProps(true)}>
+                    <img src="/assets/images/resume_JCL.png"
+                        alt="My resume: education, experience, and technical skills"
+                        loading="lazy"/>
+                </a>
             </section>
         </>
     );

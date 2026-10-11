@@ -149,6 +149,31 @@
 }
 
 /* ===========================
+   ABOUT: RESUME
+   =========================== */
+
+.about-resume {
+    display: block;
+    max-width: 720px;
+    margin: 0 auto;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.about-resume:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 24px var(--color-glow);
+}
+
+.about-resume img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* ===========================
    RESPONSIVE: SMALL SCREENS
    =========================== */
 
