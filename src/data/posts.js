@@ -31,16 +31,6 @@ export const posts = [
             "worth knowing about: Microsoft's MSVC Build Tools, and GCC under WSL.",
     },
     {
-        id: 'pitch-poster',
-        title: 'Project P.I.T.C.H. v0.1 Presentation',
-        date: 'July 2026',
-        href: '/assets/docs/posterPITCH_final.pdf',
-        external: true,
-        excerpt:
-            'My poster presentation on the proof-of-concept behind my recent, still ongoing research work, including ' +
-            'panels which highlight a few of the key "under the hood" mechanisms that I intend to drive the program with.',
-    },
-    {
         id: 'good-citizen',
         title: 'What It Means to be a Good Citizen In a Free and Fair State',
         date: 'June 2026',

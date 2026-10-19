@@ -26,9 +26,14 @@ npm run preview  # serve the built dist/ locally
 ├── vite.config.js          Build config; see the note about `base`.
 ├── legacy/                 The original static site. Archived, not built.
 ├── public/                 Copied verbatim into the build, unprocessed.
-│   ├── win-c-compilers.html    the blog post, still plain HTML
+│   ├── win-c-compilers.html    the blog posts, all plain HTML:
+│   ├── good-citizen.html         the essay,
+│   ├── yin-algorithm.html        the YIN paper,
+│   ├── tcp-ip-report.html        and the TCP/IP report
+│                                 (originals still in assets/docs/*.pdf;
+│                                  figures in assets/images/posts/)
 │   ├── tunerV2-index.html      the tuner, still vanilla Web Audio
-│   ├── site.css / post.css     frozen copies the post uses (see below)
+│   ├── site.css / post.css     stylesheets the posts use (see below)
 │   ├── 404.html                GitHub Pages SPA fallback
 │   └── assets/                 images, docs, the old scripts
 └── src/
@@ -102,12 +107,14 @@ unbuilt JSX and renders nothing.
 
 ## Known duplication
 
-`public/site.css` and `public/post.css` are frozen copies of the
-stylesheets in `src/styles/` (and `legacy/` holds a third copy of the
-originals, deliberately, as an archive). The blog post is still served as a plain
-static page outside the React build, so it cannot import from `src/`.
-Both copies carry a header saying so. Moving that article into the app
-— as a component, or via MDX — removes the duplication.
+`public/site.css` is a frozen copy of `src/styles/site.css`. The blog
+posts are served as plain static pages outside the React build, so they
+cannot import from `src/`. The copy carries a header saying so. Moving
+the articles into the app — as components, or via MDX — removes the
+duplication.
+
+`public/post.css` has no twin: nothing inside the React app renders an
+article, so it is the only copy and is edited in place.
 
 ## Not ported
 
