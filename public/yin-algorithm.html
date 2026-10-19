@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="color-scheme" content="dark">
+    <title>The YIN Pitch Estimation Algorithm — j0ey-code</title>
+    <meta name="description" content="An introductory exploration of YIN, the time-domain pitch detection algorithm by de Cheveigné and Kawahara, and how it improves on autocorrelation.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/site.css">
+    <link rel="stylesheet" href="/post.css">
+</head>
+<body>
+
+    <!-- Landing page return button (desktop only) -->
+    <div class="return-bar">
+        <a href="/" class="return-link">&larr; Landing</a>
+    </div>
+
+    <!-- Site header and navigation -->
+    <header class="site-header">
+        <nav class="site-nav">
+            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+
+            <div class="nav-links">
+                <a href="/home">Home</a>
+                <a href="/about">About Me</a>
+                <a href="/projects">Projects</a>
+                <a href="/blog" class="active">Blog</a>
+                <a href="/contact">Contact</a>
+                <a href="/" class="mobile-return">&larr; Back to Landing</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main page content -->
+    <main class="page-content">
+
+        <article>
+
+            <!-- Post header -->
+            <header class="post-header">
+                <div class="post-eyebrow">Research Paper</div>
+                <h1 class="post-heading">The YIN Pitch Estimation Algorithm</h1>
+                <div class="post-byline">May 2026 &middot; Digital Signal Processing &middot; Algorithms &middot; Audio &middot; ~13 min read</div>
+                <p class="post-lede">
+                    The purpose of this paper is to serve as an introductory exploration and discussion of YIN, a
+                    powerful, yet elegant and simple time-domain based algorithm utilized for monophonic pitch
+                    detection. YIN improves significantly upon previous methods of frequency estimation
+                    (predominantly, autocorrelation) while still maintaining the same foundational approach:
+                    determining the frequency by comparing and / or contrasting with a cross-section of delayed (or
+                    &ldquo;lagged&rdquo;) versions of the signal.
+                </p>
+            </header>
+
+            <!-- Table of contents -->
+            <nav class="post-toc" aria-label="Contents">
+                <div class="post-toc-title">Contents</div>
+                <ol>
+                    <li><a href="#introduction">Introduction</a></li>
+                    <li><a href="#autocorrelation">Background: Autocorrelation Fundamentals</a></li>
+                    <li><a href="#yang-to-yin">Yang to Yin: Improving on Autocorrelation</a></li>
+                    <li><a href="#implementation">Implementation</a></li>
+                    <li><a href="#conclusion">Conclusion</a></li>
+                    <li><a href="#works-cited">Works Cited</a></li>
+                </ol>
+            </nav>
+
+            <div class="post-body">
+
+                <!-- 01 -->
+                <section class="post-section" id="introduction">
+                    <h2 class="post-section-heading"><span class="step-number">01</span>Introduction</h2>
+
+                    <p>
+                        Every sound produced by a musical instrument or the human voice is composed of multiple
+                        frequencies vibrating simultaneously, but among them is one that defines the perceived note: the
+                        fundamental frequency (F0), commonly referred to as <em>pitch</em>. In Western music, all melody and
+                        harmony are built from just 12 tones (A, A#/Bb, B, C, C#/Db, D, D#/Eb, E, F, F#/Gb, G, G#/Ab),
+                        each corresponding to a specific fundamental frequency – a measurable, quantifiable sound wave
+                        that persists even as additional harmonics and overtones ring out around it. The same principle
+                        applies to speech and singing: the pitch of a speaker or vocalist&rsquo;s voice is determined by the
+                        fundamental frequency at which their vocal cords vibrate, surrounded by the harmonic content
+                        that gives each voice its unique timbre. Accurately detecting this fundamental frequency within a
+                        complex signal is, therefore, a problem that spans both music and speech processing, and one that
+                        has proven more difficult than it might seem.
+                    </p>
+
+                    <p>
+                        In 2002, Alain de Cheveigné and Hideki Kawahara officially published their work on the
+                        YIN algorithm: &ldquo;YIN, a fundamental frequency estimator for speech and music&rdquo; <a href="#ref-1" class="cite-ref">[1]</a>. Named after
+                        the Chinese concept of duality (yin and yang, together known as the &ldquo;taijitu&rdquo; – opposites flowing
+                        into one another) the algorithm&rsquo;s name itself is, in part, an allusion to the process which it
+                        performs. While earlier pitch detection algorithms focused mostly on
+                        autocorrelation<sup class="note-ref"><a href="#note-autocorrelation" id="ref-note-autocorrelation" aria-label="Note: autocorrelation">*</a></sup>, the YIN
+                        algorithm balances out some of the errors inherent to autocorrelation by using cancellation to
+                        help ignore harmonic interference and amplitude spikes.
+                    </p>
+
+                    <p>
+                        The YIN algorithm is specifically designed with
+                        monophonic<sup class="note-ref"><a href="#note-monophonic" id="ref-note-monophonic" aria-label="Note: monophonic">*</a></sup> pitch detection in mind,
+                        but this does not mean the process is straightforward or simple. Standard autocorrelation methods
+                        had failed, for a long time, to consistently and accurately detect the fundamental frequency of a
+                        note being played, even on instruments which were monophonic in nature / by design (i.e. bass
+                        guitar, trumpet, vocals, saxophone, etc.). Thus, a better approach was necessary.
+                    </p>
+
+                    <div class="post-notes">
+                        <p id="note-autocorrelation"><a href="#ref-note-autocorrelation" class="note-mark" aria-label="Back to text">*</a><strong>autocorrelation:</strong> method to detect pitch by measuring and comparing a waveform / signal to delayed versions of itself</p>
+                        <p id="note-monophonic"><a href="#ref-note-monophonic" class="note-mark" aria-label="Back to text">*</a><strong>monophonic:</strong> refers to one / a single note sounding at a time, as opposed to multiple notes in sequence, simultaneously (i.e. polyphonic)</p>
+                    </div>
+                </section>
+
+                <!-- 02 -->
+                <section class="post-section" id="autocorrelation">
+                    <h2 class="post-section-heading"><span class="step-number">02</span>Background Information: Autocorrelation Fundamentals</h2>
+
+                    <p>
+                        Before we can really explore the YIN algorithm, it is important to first understand standard
+                        autocorrelation as an approach to pitch detection. Autocorrelation, while certainly presenting a
+                        few key strengths and advantages, also has some significant drawbacks as well. Several problems
+                        are apparent in standard autocorrelation, including, but not limited to...
+                    </p>
+
+                    <ul>
+                        <li><strong>octave errors:</strong> inaccurate octave readings by doubling or halving the true period.</li>
+                        <li>
+                            <strong>formant filtering:</strong> when tracking the
+                            formants<sup class="note-ref"><a href="#note-formant" id="ref-note-formant" aria-label="Note: formant">*</a></sup>
+                            in human speech, the first formant (F1) can tend to produce a greater peak than the fundamental
+                            frequency (F0), leading to cascading errors in the pitch detection of human vocals.
+                        </li>
+                        <li>
+                            <strong>window size selection:</strong> an appropriate window (analysis frame) must be selected to
+                            perform autocorrelation – too small, and the pitch can&rsquo;t be picked up; too large, and more
+                            continuous audio signals (like human speech) will vary too much and ruin the accuracy.
+                        </li>
+                        <li>
+                            <strong>low frequency inaccuracy:</strong> standard autocorrelation methods can also fail to detect
+                            frequencies which are too low (or, &ldquo;bass-y&rdquo;) <em>because</em> of window size selection that is
+                            too small (lower frequencies have longer periods) - this is most apparent in instruments such
+                            as the tuba, double / upright bass, or the bass trombone.
+                        </li>
+                    </ul>
+
+                    <p>
+                        These persistent and troublesome issues with autocorrelation methods have been known
+                        for some time; in February of 1977, electrical engineer Lawrence R. Rabiner described and
+                        outlined all these faults in his paper &ldquo;On the Use of Autocorrelation Analysis for Pitch Detection&rdquo;
+                        within the IEEE Transactions on Acoustics, Speech, and Signal Processing, vol. 25, no. 1.
+                        Rabiner noted that while autocorrelation generally produces a prominent peak at the
+                        pitch period<sup class="note-ref"><a href="#note-pitch-period" id="ref-note-pitch-period" aria-label="Note: pitch period">*</a></sup>,
+                        formant structure in the signal often creates competing peaks – and the choice of analysis
+                        window only compounds the problem, since the windowing process tapers the autocorrelation
+                        function toward zero at higher indices, giving those lower-index formant peaks even greater
+                        relative magnitude (Rabiner, pg. 1) <a href="#ref-2" class="cite-ref">[2]</a>. This can result in false positive errors, where the wrong
+                        peak is selected as the estimated pitch period. Rabiner also provides the true, mathematical
+                        definition for the autocorrelation of a signal...
+                    </p>
+
+                    <figure class="post-figure post-figure--math" id="fig-1">
+                        <a class="post-figure-frame" href="/assets/images/posts/yin-paper/fig1-rabiner-autocorrelation.jpg" target="_blank" rel="noopener">
+                            <img src="/assets/images/posts/yin-paper/fig1-rabiner-autocorrelation.jpg" width="303" height="54" loading="lazy" decoding="async"
+                                alt="φx(m) = lim as N approaches infinity of 1 over (2N + 1), times the sum from n = −N to N of x(n) x(n + m).">
+                        </a>
+                        <figcaption>
+                            <span class="figure-label">Figure 1</span>Rabiner&rsquo;s general formulation for autocorrelation of a signal;
+                            <em>m</em> is incremented to shift the signal, while <em>n</em> then walks through the signal to accumulate
+                            the shifted signal&rsquo;s sum – the result is a sequence of numbers, each representing one value per signal lag
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        This is the <em>theoretical</em> definition, as one may note from the lim(N &rarr; &infin;); under ideal
+                        conditions, we would just continually measure the waveform. However, as stated previously, an
+                        analysis window <strong>must</strong> be selected, and this is not obvious anywhere in Rabiner&rsquo;s definition. In
+                        fact, quite the opposite, as beneath the sigma / summation notation (&Sigma;), <em>n</em> = -<em>N</em> signifies integer
+                        values for the signal as existing from anywhere between -&infin; and +&infin;. Before the sigma /
+                        summation notation is the necessary normalization for such a formula; after all, we aren&rsquo;t looking
+                        for a sum – we are searching for the mean approximation of the fundamental frequency. As such,
+                        the limit is taken, and division by the number of terms in the summation is performed in order to
+                        find the average similarity in frequency per sample.
+                    </p>
+
+                    <p>
+                        Let&rsquo;s also take a quick look at the more practical, applied, time-domain based
+                        implementation of Rabiner&rsquo;s formulation, presented by the creators of the YIN algorithm
+                        themselves, Cheveigne and Kawahara.
+                    </p>
+
+                    <figure class="post-figure post-figure--math" id="fig-2">
+                        <a class="post-figure-frame" href="/assets/images/posts/yin-paper/fig2-practical-autocorrelation.png" target="_blank" rel="noopener">
+                            <img src="/assets/images/posts/yin-paper/fig2-practical-autocorrelation.png" width="186" height="70" loading="lazy" decoding="async"
+                                alt="r′t(τ) = the sum from j = t + 1 to t + W − τ of x sub j times x sub (j + τ).">
+                        </a>
+                        <figcaption>
+                            <span class="figure-label">Figure 2</span>Cheveigne and Kawahara&rsquo;s derived, practical implementation
+                            of the autocorrelation formula <a href="#ref-1" class="cite-ref">[1]</a>
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        Let&rsquo;s step through each part of this equation / summation, as to better understand how
+                        autocorrelation works in a pragmatic sense, before finally moving onto the YIN algorithm itself.
+                    </p>
+
+                    <p>
+                        <em>r&prime;<sub>t</sub></em>(<em>&tau;</em>) represents the autocorrelation value at a given lag <em>&tau;</em>, starting from position <em>t</em> in the
+                        signal. The index <em>j</em> walks from <em>t</em> + 1 up to <em>t</em> + <em>W</em> - <em>&tau;</em>, where <em>W</em> is the window size. The &ldquo;- <em>&tau;</em>&rdquo; in the
+                        upper bound pulls it back just enough to ensure the summation never exceeds the end of the
+                        frame. At each step, the signal value at position <em>j</em> is multiplied by the signal value at the shifted
+                        position <em>j</em> + <em>&tau;</em>. A positive product indicates agreement between the original and shifted signals,
+                        while a negative product indicates disagreement. Summing these products across the entire
+                        window yields a single number representing the overall similarity at that particular lag. This
+                        process is then repeated for <em>&tau;</em> = 1, 2, 3, etc., producing an autocorrelation curve; the lag value
+                        where the curve peaks corresponds to the estimated period, and the inverse at that point gives the
+                        estimated fundamental frequency.
+                    </p>
+
+                    <div class="post-notes">
+                        <p id="note-formant"><a href="#ref-note-formant" class="note-mark" aria-label="Back to text">*</a><strong>formant:</strong> resonant frequencies of the vocal tract (particularly in humans) that contribute to the overall sound of speech</p>
+                        <p id="note-pitch-period"><a href="#ref-note-pitch-period" class="note-mark" aria-label="Back to text">*</a><strong>pitch period:</strong> the duration of time for a single periodicity of the fundamental frequency to complete; reciprocal of the frequency</p>
+                    </div>
+                </section>
+
+                <!-- 03 -->
+                <section class="post-section" id="yang-to-yin">
+                    <h2 class="post-section-heading"><span class="step-number">03</span>Yang to Yin: Improving on Autocorrelation</h2>
+
+                    <p>
+                        For decades people struggled to perfect autocorrelation pitch detection and estimation methods,
+                        only considering how by comparison of waveform signals (the &ldquo;yang&rdquo; methodology) we can
+                        estimate the fundamental frequency of a sound signal. Besides the other issues with
+                        autocorrelation, these approaches have yet another pitfall in that audio signals are not naturally
+                        constant in amplitude – they swell, crescendo, decay, and fade or cut out. This was the single
+                        biggest problem in autocorrelation, because a larger amplitude spike within a single frame of
+                        audio may falsely be detected as the frequency to estimate, resulting in the chosen lag / delay /
+                        shift value to be too large, and therefore the resulting frequency will be too low. Conversely, if an
+                        audio signal decays / fades / rings out within its given frame, the algorithm picks a shorter lag
+                        value which yields frequencies that are too high. Autocorrelation asked &ldquo;how similar is the signal
+                        from a shifted version of itself?&rdquo;, which only compounds the errors caused by variations in peaks
+                        and amplitudes. YIN&rsquo;s essential change is the implementation of a difference function rather than
+                        a similarity function – YIN instead asks the question, &ldquo;how different is the signal from a shifted
+                        version of itself?&rdquo;.
+                    </p>
+
+                    <p>
+                        This plain difference function constitutes only step two of the YIN algorithm (step 1, for
+                        Cheveigne and Kawahara&rsquo;s purposes, being standard autocorrelation). In <a href="#fig-3">figure 3</a> is a table
+                        directly from their paper <a href="#ref-1" class="cite-ref">[1]</a> which shows the significant error mitigation using this step alone as
+                        opposed to simply autocorrelation (step 1), which had a 10% observed gross error rate (90%
+                        success rate).
+                    </p>
+
+                    <figure class="post-figure" id="fig-3">
+                        <a class="post-figure-frame" href="/assets/images/posts/yin-paper/fig3-error-rate-table.png" target="_blank" rel="noopener">
+                            <img src="/assets/images/posts/yin-paper/fig3-error-rate-table.png" width="425" height="249" loading="lazy" decoding="async"
+                                alt="Table I: gross error rates for the simple unbiased autocorrelation method (step 1) and for the cumulated steps. Step 1: 10.0%. Step 2: 1.95%. Step 3: 1.69%. Step 4: 0.78%. Step 5: 0.77%. Step 6: 0.50%. Integration window 25 ms, window shift one sample, search range 40 to 800 Hz, threshold (step 4) 0.1.">
+                        </a>
+                        <figcaption>
+                            <span class="figure-label">Figure 3</span>Table I from Cheveigne and Kawahara&rsquo;s paper <a href="#ref-1" class="cite-ref">[1]</a>
+                            showing the diminishing error rate in accurate pitch estimation at each corresponding step of the YIN algorithm
+                        </figcaption>
+                    </figure>
+
+                    <p>And below, we can see this step two (the core difference function) shown in plain mathematics.</p>
+
+                    <figure class="post-figure post-figure--math" id="fig-4">
+                        <a class="post-figure-frame" href="/assets/images/posts/yin-paper/fig4-difference-function.png" target="_blank" rel="noopener">
+                            <img src="/assets/images/posts/yin-paper/fig4-difference-function.png" width="186" height="65" loading="lazy" decoding="async"
+                                alt="d sub t of τ = the sum from j = 1 to W of (x sub j minus x sub (j + τ)) squared.">
+                        </a>
+                        <figcaption>
+                            <span class="figure-label">Figure 4</span>Cheveigne and Kawahara&rsquo;s defined difference function for an
+                            unidentified period; the summation of differences squared
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        While autocorrelation computes the inner product of the signal with a shifted copy of
+                        itself (a similarity metric that <em>peaks</em> at the correct period), the difference function instead
+                        computes the sum of squared differences – a dissimilarity metric that reaches its <em>minimum</em> at the
+                        correct period. This fundamental change in the process, from peak-finding to valley-finding, is
+                        YIN&rsquo;s greatest improvement. In autocorrelation, the correct period must compete with amplitude
+                        spikes, formant peaks, and harmonic interference that can all inflate the similarity score at
+                        incorrect lags, creating false positives that are difficult to distinguish from the actual peak. This is
+                        avoided completely when utilizing a difference function, since the point closest to zero is a value
+                        that only the true period can approach. A correctly shifted copy of the signal will consistently
+                        cancel out the original signal, sample for sample. At the correct lag point, every subtraction will
+                        yield something near zero because the signal and its delayed copy are <em>nearly</em> identical. At an
+                        <em>incorrect</em> lag point however, these subtractions end up producing larger and larger values that the
+                        squaring and summing will only amplify, thereby ruling them out entirely.
+                    </p>
+
+                    <p>
+                        Yet there is still an issue. This core difference function is still reflective of a range of
+                        values accumulated over the entire summation and, because of its very nature, comes with an
+                        inherent bug. <em>&tau;</em> = 0 produces a false minimum; that is, the lag / tau value at zero for each iteration
+                        will yield a mathematical tautology (i.e. meaningless output). Of course if the lag is zero there
+                        will be <strong>zero</strong> real difference measured. A band-aid solution might be to simply start <em>&tau;</em> at 1 each
+                        time, and this would still admittedly result in a gross-error rate of only 1.95% in practice /
+                        implementation. This is unfortunately only a minor symptom of the real bug plaguing our core
+                        difference function. The actual issue is that we have no normalization!
+                    </p>
+
+                    <figure class="post-figure post-figure--math" id="fig-5">
+                        <a class="post-figure-frame" href="/assets/images/posts/yin-paper/fig5-cmndf.jpg" target="_blank" rel="noopener">
+                            <img src="/assets/images/posts/yin-paper/fig5-cmndf.jpg" width="360" height="92" loading="lazy" decoding="async"
+                                alt="d′t(τ) = 1 if τ = 0; otherwise d sub t of τ divided by [(1/τ) times the sum from j = 1 to τ of d sub t of j].">
+                        </a>
+                        <figcaption>
+                            <span class="figure-label">Figure 5</span>Cumulative mean normalized difference formula / function [CMNDF];
+                            post-processing phase to divide <em>d<sub>t</sub></em>(<em>&tau;</em>) by the current running average
+                            [(1/<em>&tau;</em>) x &Sigma;] of <em>d<sub>t</sub></em> computed values up until that point
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        The cumulative mean normalized difference function (CMNDF, step three of YIN)
+                        provides an even more refined approximation framework for honing in on the fundamental
+                        frequency, within the complex mess of &ldquo;noise&rdquo; that encompasses an audio signal. The core
+                        difference function feeds us critical information about how different the waveform is at such and
+                        such a lag; the CMNDF uses this raw data to extrapolate further by re-framing it again, this time
+                        instead as &ldquo;how different is this audio signal at <em>&tau;</em> lag, relative to how different it typically is?&rdquo;.
+                    </p>
+
+                    <p>
+                        By normalizing the crude signal information with the CMNDF, YIN can then further
+                        refine the audio to come to an even more precise estimation. Steps four (absolute thresholding),
+                        five (parabolic interpolation), and six (best local estimate) of the YIN algorithm resolve any
+                        remaining bugs or real-time implementation specific issues (octave errors, discrete vs. real
+                        sampling, additional possibilities for false positives, etc.). The first of these post-processing steps,
+                        the thresholding, fixes a certain number as a decision gate to test the received data from the
+                        CMNDF against. It iterates through the elements, much like many of the functions mentioned
+                        insofar, and tests whether each value falls below the thresholding gate.
+                    </p>
+
+                    <p>
+                        For the <em>very first</em> signal value to fall below the threshold, we capture it and stop. In the
+                        implementation described by Cheveigne and Kawahara, this absolute value is set to 0.1, &ldquo;With a
+                        threshold of 0.1, the error rate drops to 0.78% (from 1.69%) as a consequence of a reduction of
+                        &lsquo;&lsquo;too low&rsquo;&rsquo; errors accompanied by a very slight increase of &lsquo;&lsquo;too high&rsquo;&rsquo; errors.&rdquo; (Cheveigne &amp;
+                        Kawahara, pg. 3) <a href="#ref-1" class="cite-ref">[1]</a>. The absolute thresholding step is designed predominantly to correct octave
+                        errors – particular false positives caught by the algorithm because of their specific interval
+                        relationship to the fundamental frequency, i.e. a sub-harmonic. Parabolic interpolation (step five)
+                        is deployed to conduct even more audio refinement, using the neighboring delayed signal values.
+                        Since real-world problems do not meaningfully exist in discrete terms (i.e. a frequency can fall on
+                        a decimal point), it is imprecise to implement it in a discrete fashion. A lag increment that only
+                        moves along integers, while still functional, is ultimately inaccurate and introduces a small but
+                        notable rounding error. To solve this, a parabola is retroactively fitted between the minimum
+                        values for the current waveform, and the two beside it. This parabola&rsquo;s vertex point provides a
+                        split, sub-sample from which a more precise estimate can be taken (e.g. 1024.7 instead of 1025).
+                    </p>
+
+                    <p>
+                        Step six serves a similar purpose to step five; a sanity check more or less, but at a different
+                        level of the algorithm. All steps thus far have been concerned with only the audio signals in the
+                        selected analysis frame / window. As a final refinement, the best local estimate function now
+                        checks the neighboring analysis frames and determines if a value even <em>lower</em> than the one within
+                        the current frame was detected. If this is the case, a larger valley than the one caught in the
+                        current frame would be found at <em>around</em> the exact same lag value. This would mean the analysis
+                        frame selected was not the optimal one, but an adjacent window managed to catch a cleaner
+                        fragment of the signal. So, we disregard the old analysis frame value(s) and focus on the new
+                        value(s) found for the period&rsquo;s estimation, within the new window!
+                    </p>
+                </section>
+
+                <!-- 04 -->
+                <section class="post-section" id="implementation">
+                    <h2 class="post-section-heading"><span class="step-number">04</span>Implementation</h2>
+
+                    <p>
+                        The mathematics and abstraction of defining such an algorithm can tend to obfuscate the core
+                        process, which may otherwise be fairly simple to understand. To bring things full circle, we will
+                        examine a couple of the critical operations at play in the YIN algorithm, and how they tie back
+                        into the foundations laid by Cheveigne and Kawahara in their paper. Below is pseudo-code for the
+                        most important part of YIN: the core difference function, in quadratic, O(<em>n</em><sup>2</sup>/4) time.
+                    </p>
+
+                    <figure class="code-block" id="fig-6">
+                        <span class="code-label">Pseudocode</span>
+<pre><code>array* func computeDifference(signal, frameLen) {
+    array differences[] = new array(frameLen / 2);
+    <span class="c">// tau, lag delay sweep through frame</span>
+    for (tau = 0; tau &lt; (frameLen / 2) - 1; tau++) {
+        sum = 0;
+        <span class="c">// j iterates to perform operation for each tau value</span>
+        for (j = 0; j &lt; (frameLen / 2) - 1; j++) {
+            delta = signal[j] - signal[j + tau];
+            sum = sum + (delta * delta); <span class="c">// sum of differences squared!</span>
+        }
+        differences[tau] = sum;
+    }
+    return differences;
+}</code></pre>
+                        <figcaption>
+                            <span class="figure-label">Figure 6</span>Pseudocode implementation for the sum of squared differences
+                            function – the &ldquo;core difference&rdquo; function, step two of the YIN algorithm
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        This accumulates our summations and saves them to some structure, <code>differences[]</code>,
+                        from which we can normalize the raw signal data using the CMNDF. If you&rsquo;ll have noted in
+                        <a href="#fig-5">figure 5</a> above, we capture the outputs of our core difference formula / function to find mean
+                        normalized versions of our input signals. Here, our pseudocode maps one-to-one with this
+                        function by using the values captured within the <code>differences[]</code> structure as input for the next
+                        stage of the YIN algorithm&rsquo;s pipeline&hellip; the cumulative mean normalized difference function.
+                    </p>
+
+                    <figure class="code-block" id="fig-7">
+                        <span class="code-label">Pseudocode</span>
+<pre><code>array* func CMNDF(differences, frameLen) {
+    array avgDiffs[] = new array(frameLen / 2);
+    avgDiffs[0] = 1; <span class="c">//</span>
+    accumulator = 0;
+
+    for (tau = 1; tau &lt; (frameLen / 2) - 1; tau++) {
+        accumulator = accumulator + differences[tau];
+        avgDiffs[tau] = differences[tau] / (accumulator / tau);
+    }
+
+    return avgDiffs;
+}</code></pre>
+                        <figcaption>
+                            <span class="figure-label">Figure 7</span>Pseudocode implementation for the cumulative mean normalized
+                            difference function, in linear, O(<em>n</em> / 2) time
+                        </figcaption>
+                    </figure>
+                </section>
+
+                <!-- 05 -->
+                <section class="post-section" id="conclusion">
+                    <h2 class="post-section-heading"><span class="step-number">05</span>Conclusion</h2>
+
+                    <p>
+                        It should be evidently apparent why the YIN algorithm is considered so revolutionary and
+                        ingenious. In many real-time applications, stability, speed, and efficiency are everything. But
+                        more importantly, so are accurate, precise, meaningful results! The core difference function is
+                        enough to have flipped the script on its own, but the application of the CMNDF and the
+                        additional post-processing phases are what make YIN truly stand out – reducing error rates from
+                        1.95%, down to only 0.50%. For use cases within the realm of digital signal processing, where
+                        data can be hard to unscramble and analyze, YIN serves as a testament to the remarkable
+                        methods we can devise for solving complex, sometimes abstract, real-world problems.
+                    </p>
+                </section>
+
+                <!-- Works Cited -->
+                <section class="post-section" id="works-cited">
+                    <h2 class="post-section-heading"><span class="step-number">06</span>Works Cited</h2>
+
+                    <ul class="post-references">
+                        <li id="ref-1">
+                            <span class="ref-num">[1]</span>de Cheveigné, A., &amp; Kawahara, H. (2002). &ldquo;YIN, a fundamental frequency estimator for
+                            speech and music.&rdquo; The Journal of the Acoustical Society of America, 111(4), 1917–1930.
+                            <a href="https://doi.org/10.1121/1.1458024" target="_blank" rel="noopener noreferrer">https://doi.org/10.1121/1.1458024</a>.
+                            Accessed 28 Mar. 2026.
+                        </li>
+                        <li id="ref-2">
+                            <span class="ref-num">[2]</span>Rabiner, L. &ldquo;On the Use of Autocorrelation Analysis for Pitch Detection.&rdquo; IEEE Transactions
+                            on Acoustics, Speech, and Signal Processing, vol. 25, no. 1, Feb. 1977, pp. 24–33,
+                            <a href="https://doi.org/10.1109/tassp.1977.1162905" target="_blank" rel="noopener noreferrer">https://doi.org/10.1109/tassp.1977.1162905</a>.
+                            Accessed 11 Apr. 2026.
+                        </li>
+                        <li id="ref-3">
+                            <span class="ref-num">[3]</span>Rao, Prajwal S., et al. &ldquo;A Comparative Study of Various Pitch Detection Algorithms.&rdquo; 2020
+                            5th International Conference on Computing, Communication and Security (ICCCS), Oct.
+                            2020, pp. 1–6,
+                            <a href="https://doi.org/10.1109/icccs49678.2020.9277448" target="_blank" rel="noopener noreferrer">https://doi.org/10.1109/icccs49678.2020.9277448</a>.
+                            Accessed 11 Apr. 2026.
+                        </li>
+                    </ul>
+                </section>
+
+            </div>
+
+            <!-- Post footer -->
+            <footer class="post-end">
+                <a href="/blog" class="post-back">&larr; Back to All Posts</a>
+                <a href="/assets/docs/yinPaper.pdf" class="post-back" target="_blank" rel="noopener noreferrer">Original PDF &nearr;</a>
+            </footer>
+
+        </article>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="https://github.com/j0ey-code">GitHub</a>
+            <a href="https://www.linkedin.com/in/j0ey-code/">LinkedIn</a>
+            <a href="mailto:alias.glacier901@passmail.net">Email</a>
+        </div>
+        <span class="footer-copy">&copy; 2026 j0ey-code — All Rights Reserved</span>
+    </footer>
+
+    <script src="/assets/scripts/site.js"></script>
+    <script src="/assets/scripts/post.js"></script>
+
+</body>
+</html>

@@ -5,9 +5,9 @@ import { newTabProps } from '../lib/links';
  * One row in the blog listing. Reads its content from a post object out
  * of src/data/posts.js.
  *
- * Plain <a> for the same reason as PreviewCard: every post either links
- * to a PDF or to the static win-c-compilers.html page, neither of which
- * is a route in this app.
+ * Plain <a> for the same reason as PreviewCard: every post is a static
+ * .html page out of public/ (or, if `external`, an off-site link), never
+ * a route in this app.
  */
 export default function PostEntry({ post }) {
     return (

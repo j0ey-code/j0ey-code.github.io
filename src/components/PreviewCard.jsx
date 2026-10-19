@@ -8,8 +8,8 @@ import { newTabProps } from '../lib/links';
  * case a component with props is for.
  *
  * Note this renders a plain <a>, not a react-router <Link>. Every href it
- * receives points at something outside the React app: a GitHub URL, a PDF
- * in public/assets/docs, or the static win-c-compilers.html page. <Link>
+ * receives points at something outside the React app: a GitHub URL, the
+ * tuner demo, or one of the static blog post pages in public/. <Link>
  * would try to match those against the app's routes, find nothing, and
  * render the not-found page instead of letting the browser fetch the file.
  * <Link> is for routes; <a> is for everything else.

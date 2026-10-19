@@ -10,7 +10,7 @@
    goes here rather than in six different files. */
 const FOOTER_LINKS = [
     { label: 'GitHub',   href: 'https://github.com/j0ey-code' },
-    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/joseph-lincoln-79055b3b4/' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/j0ey-code/' },
     { label: 'Email',    href: 'mailto:alias.glacier901@passmail.net' },
 ];
 

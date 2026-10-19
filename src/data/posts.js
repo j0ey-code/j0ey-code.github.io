@@ -11,9 +11,14 @@
  * Now both pages read this array. Blog.jsx renders all of it; Home.jsx
  * renders `posts.slice(0, 3)`. One edit here updates both pages.
  *
- * `external: true` marks an entry that links straight to a PDF rather
- * than to a page on this site -- the components use it to decide whether
- * to open the link in a new tab.
+ * Every post is a static HTML page served straight out of public/, so
+ * each `href` is a plain path, not a React route. The papers that used
+ * to link to their PDFs are now articles too; each one links back to its
+ * original PDF from its own footer.
+ *
+ * `external: true` marks an entry that links somewhere off this site
+ * (e.g. straight to a PDF) -- the components use it to decide whether
+ * to open the link in a new tab. None currently do.
  */
 
 export const posts = [
@@ -21,8 +26,6 @@ export const posts = [
         id: 'win-c-compilers',
         title: 'Installing a C/C++ Compiler on Windows',
         date: 'August 2026',
-        /* Still served as the original static HTML file out of public/,
-           so this is a plain path, not a React route. */
         href: '/win-c-compilers.html',
         external: false,
         excerpt:
@@ -34,8 +37,8 @@ export const posts = [
         id: 'good-citizen',
         title: 'What It Means to be a Good Citizen In a Free and Fair State',
         date: 'June 2026',
-        href: '/assets/docs/wimtbagciffs.pdf',
-        external: true,
+        href: '/good-citizen.html',
+        external: false,
         excerpt:
             'A humanities centered essay on the importance of civic virtue ' +
             'and sociopolitical obligation in a democratic nation.',
@@ -44,8 +47,8 @@ export const posts = [
         id: 'yin-paper',
         title: 'YIN Algorithm Research Paper',
         date: 'May 2026',
-        href: '/assets/docs/yinPaper.pdf',
-        external: true,
+        href: '/yin-algorithm.html',
+        external: false,
         excerpt:
             'My research paper on the YIN algorithm, created by Cheveigne and ' +
             'Kawahara in 2002, exploring its improvements upon previous ' +
@@ -56,8 +59,8 @@ export const posts = [
         id: 'tcp-ip',
         title: 'TCP/IP Technical Report',
         date: 'March 2026',
-        href: '/assets/docs/tcp-ip_paper.pdf',
-        external: true,
+        href: '/tcp-ip-report.html',
+        external: false,
         excerpt:
             'A technical report on how both the TCP/IP and ' +
             'OSI networking models function in practice.',
