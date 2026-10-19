@@ -67,7 +67,7 @@ export const projects = [
                Web Audio app that would gain nothing from being rewritten in React. */
             { label: 'Demo', href: '/tunerV2-index.html' },
             { label: 'GitHub', href: 'https://github.com/j0ey-code/yin-webapp-tuner' },
-            { label: 'Docs', href: '/assets/docs/yinPaper.pdf' },
+            { label: 'Docs', href: '/yin-algorithm.html' },
         ],
     },
     {
